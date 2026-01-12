@@ -78,4 +78,4 @@ cres-validation/
 
 ## Licence
 
-[À définir]
+Ce projet est sous licence [AGPL v3](LICENSE).

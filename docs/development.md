@@ -9,6 +9,7 @@ cres-validation/
 ├── main.py                # Point d'entrée principal
 ├── config.ini             # Template de configuration
 ├── pyproject.toml         # Configuration du projet
+├── LICENSE                # Licence AGPL v3
 ├── tests/                 # Tests unitaires
 │   ├── fixtures/         # Fichiers de test
 │   └── test_csv_validator.py
@@ -111,3 +112,7 @@ Pour créer une nouvelle release :
 2. Créer un tag : `git tag v1.0.0`
 3. Push le tag : `git push origin v1.0.0`
 4. Créer une release sur GitHub
+
+## Licence
+
+Ce projet est sous licence [AGPL v3](https://www.gnu.org/licenses/agpl-3.0.html). Toute contribution doit respecter cette licence.

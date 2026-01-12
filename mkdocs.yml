@@ -3,6 +3,10 @@ site_description: Outil de validation et correction de fichiers CSV pour le proj
 site_author: benjello
 site_url: https://benjello.github.io/cres-validation/
 
+# Langue française
+theme:
+  language: fr
+
 repo_name: benjello/cres-validation
 repo_url: https://github.com/benjello/cres-validation
 edit_uri: edit/main/docs/

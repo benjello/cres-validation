@@ -56,4 +56,4 @@ Les contributions sont les bienvenues ! Veuillez consulter le [guide de dévelop
 
 ## Licence
 
-[À définir]
+Ce projet est sous licence [AGPL v3](https://www.gnu.org/licenses/agpl-3.0.html).
