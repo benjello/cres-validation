@@ -48,5 +48,8 @@ htmlcov/
 *.cover
 .hypothesis/
 
+# MkDocs
+site/
+
 # Config files (user-specific)
 ~/.config/cres-validation/
