@@ -2,6 +2,7 @@
 import filecmp
 from pathlib import Path
 import pytest
+import pandas as pd
 
 from csv_validator import analyze_csv_columns, validate_csv, correct_csv
 
@@ -127,6 +128,70 @@ def test_correct_csv_number_of_lines(tmp_path):
     # Dans notre cas de test, on sait qu'il y a des lignes à fusionner
     assert corrected_lines < original_lines, \
         f"Le fichier de test devrait avoir des lignes fusionnées ({corrected_lines} vs {original_lines})"
+
+
+def test_validate_columns_with_pandera(tmp_path):
+    """Test de validation des colonnes avec Pandera après correction"""
+    output_file = tmp_path / "corrected_output.csv"
+    
+    # Corriger le fichier
+    correct_csv(
+        INPUT_FILE,
+        output_file,
+        delimiter=';',
+        show_progress=False
+    )
+    
+    # Mapping des colonnes pour le schéma 'individu'
+    column_mapping = {
+        'id_anonymized_membre': 2,
+        'sexe': 3,
+        'date_naissance': 4,
+        'role_menage': 5,
+        'id_anonymized_chef': 1,
+    }
+    
+    # Lire le CSV corrigé
+    df = pd.read_csv(output_file, delimiter=';', dtype=str, keep_default_na=False, header=None)
+    
+    # Créer un DataFrame avec les colonnes mappées
+    df_mapped = pd.DataFrame()
+    for schema_col, csv_index in column_mapping.items():
+        if csv_index < len(df.columns):
+            df_mapped[schema_col] = df.iloc[:, csv_index]
+    
+    # Conversions
+    df_mapped['sexe'] = df_mapped['sexe'].map({'M': 'Homme', 'F': 'Femme', '': ''})
+    
+    # Convertir role_menage en int
+    df_mapped['role_menage'] = pd.to_numeric(df_mapped['role_menage'], errors='coerce').fillna(0).astype(int)
+    
+    # Convertir dates JJ/MM/AA en JJ/MM/AAAA
+    def convert_date(date_str):
+        if pd.isna(date_str) or date_str == '':
+            return date_str
+        parts = date_str.split('/')
+        if len(parts) == 3:
+            jour, mois, annee_2ch = parts
+            annee_int = int(annee_2ch)
+            annee_4ch = 2000 + annee_int if annee_int < 50 else 1900 + annee_int
+            return f"{jour}/{mois}/{annee_4ch}"
+        return date_str
+    
+    df_mapped['date_naissance'] = df_mapped['date_naissance'].apply(convert_date)
+    
+    # Ajouter 'lib' vide (non présent dans ce CSV)
+    df_mapped['lib'] = ''
+    
+    # Valider avec le schéma Pandera
+    import colums_validator
+    schema = colums_validator.schema_by_table['individu']
+    
+    try:
+        validated_df = schema.validate(df_mapped)
+        assert True, "Validation Pandera réussie"
+    except Exception as e:
+        pytest.fail(f"Validation Pandera échouée: {e}")
 
 
 if __name__ == "__main__":
