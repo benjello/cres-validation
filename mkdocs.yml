@@ -1,0 +1,62 @@
+site_name: CRES Validation
+site_description: Outil de validation et correction de fichiers CSV pour le projet CRES
+site_author: benjello
+site_url: https://benjello.github.io/cres-validation/
+
+repo_name: benjello/cres-validation
+repo_url: https://github.com/benjello/cres-validation
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.annotate
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+
+nav:
+  - Accueil: index.md
+  - Installation: installation.md
+  - Configuration: configuration.md
+  - Utilisation: usage.md
+  - API: api.md
+  - Tests: tests.md
+  - Développement: development.md
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
