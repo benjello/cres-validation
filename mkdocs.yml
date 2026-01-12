@@ -13,6 +13,7 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
+  language: fr
   palette:
     - scheme: default
       primary: blue
