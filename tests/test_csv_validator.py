@@ -1,10 +1,10 @@
 """Tests pour le module csv_validator"""
 from pathlib import Path
-import pytest
+
 import pandas as pd
+import pytest
 
-from csv_validator import analyze_csv_columns, validate_csv, correct_csv
-
+from csv_validator import analyze_csv_columns, correct_csv, validate_csv
 
 # Chemin vers les fichiers de test
 TESTS_DIR = Path(__file__).parent
@@ -75,8 +75,8 @@ def test_correct_csv(tmp_path):
     # Comparer avec le fichier attendu
     # Note: on compare ligne par ligne car les fichiers peuvent avoir des différences mineures
     # (espaces, encodage, etc.)
-    with open(output_file, 'r', encoding='utf-8') as f1, \
-         open(EXPECTED_OUTPUT_FILE, 'r', encoding='utf-8') as f2:
+    with open(output_file, encoding='utf-8') as f1, \
+         open(EXPECTED_OUTPUT_FILE, encoding='utf-8') as f2:
         lines1 = [line.strip() for line in f1 if line.strip()]
         lines2 = [line.strip() for line in f2 if line.strip()]
 
@@ -85,7 +85,7 @@ def test_correct_csv(tmp_path):
 
     # Vérifier que toutes les lignes ont le même nombre de colonnes
     delimiter = ';'
-    for i, (line1, line2) in enumerate(zip(lines1, lines2), start=1):
+    for i, (line1, line2) in enumerate(zip(lines1, lines2, strict=True), start=1):
         cols1 = line1.count(delimiter) + 1
         cols2 = line2.count(delimiter) + 1
         assert cols1 == cols2, \
@@ -104,7 +104,7 @@ def test_correct_csv_number_of_lines(tmp_path):
     output_file = tmp_path / "corrected_output.csv"
 
     # Compter les lignes dans le fichier original
-    with open(INPUT_FILE, 'r', encoding='utf-8') as f:
+    with open(INPUT_FILE, encoding='utf-8') as f:
         original_lines = sum(1 for line in f if line.strip())
 
     # Corriger le fichier
@@ -116,7 +116,7 @@ def test_correct_csv_number_of_lines(tmp_path):
     )
 
     # Compter les lignes dans le fichier corrigé
-    with open(output_file, 'r', encoding='utf-8') as f:
+    with open(output_file, encoding='utf-8') as f:
         corrected_lines = sum(1 for line in f if line.strip())
 
     # Le fichier corrigé doit avoir moins ou autant de lignes que l'original

@@ -3,8 +3,9 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
+
 from config import get_config
-from csv_validator import validate_csv, correct_csv
+from csv_validator import correct_csv, validate_csv
 
 
 def setup_logger(log_file: Path, verbose: int = 0) -> logging.Logger:

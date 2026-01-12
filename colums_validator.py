@@ -72,7 +72,7 @@ vectorized_date_validator_jjmmaaaa = partial(vectorized_date_validator, date_for
 vectorized_date_validator_aaaammjj = partial(vectorized_date_validator, date_format = 'aaaa-mm-jj')
 
 
-schema_by_table = dict()
+schema_by_table = {}
 
 schema_by_table ['individu'] = DataFrameSchema(
     columns = {

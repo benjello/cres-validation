@@ -2,7 +2,6 @@ import csv
 import logging
 from collections import Counter
 from pathlib import Path
-from typing import List, Tuple, Optional
 
 
 def count_columns_in_line_fast(line: str, delimiter: str = ',') -> int:
@@ -39,8 +38,8 @@ def analyze_csv_columns(
     use_most_frequent: bool = True,
     show_progress: bool = True,
     chunk_size: int = 100000,
-    logger: Optional[logging.Logger] = None
-) -> Tuple[int, List[int], Counter]:
+    logger: logging.Logger | None = None
+) -> tuple[int, list[int], Counter]:
     """
     Analyse un fichier CSV pour détecter les lignes avec un nombre de colonnes incorrect.
     Version optimisée pour les gros fichiers (millions de lignes).
@@ -76,8 +75,8 @@ def analyze_csv_columns(
         total_lines = 0
         empty_lines = 0
 
-        with open(csv_path, 'r', encoding=enc, newline='', buffering=8192*16) as f:
-            for line_num, line in enumerate(f, start=1):
+        with open(csv_path, encoding=enc, newline='', buffering=8192*16) as f:
+            for _line_num, line in enumerate(f, start=1):
                 stripped = line.rstrip('\n\r')
                 if not stripped.strip():
                     empty_lines += 1
@@ -98,7 +97,7 @@ def analyze_csv_columns(
         try:
             read_file_with_encoding('latin-1')
         except Exception as e:
-            raise ValueError(f"Impossible de lire le fichier: {e}")
+            raise ValueError(f"Impossible de lire le fichier: {e}") from e
 
     if show_progress:
         logger.debug(f"Première passe terminée: {total_lines:,} lignes analysées")
@@ -121,7 +120,7 @@ def analyze_csv_columns(
         problematic_lines = {}
         current_line = 0
 
-        with open(csv_path, 'r', encoding=enc, newline='', buffering=8192*16) as f:
+        with open(csv_path, encoding=enc, newline='', buffering=8192*16) as f:
             for line_num, line in enumerate(f, start=1):
                 stripped = line.rstrip('\n\r')
                 if not stripped.strip():
@@ -155,7 +154,7 @@ def validate_csv(
     encoding: str = 'utf-8',
     show_progress: bool = True,
     max_problematic_display: int = 100,
-    logger: Optional[logging.Logger] = None
+    logger: logging.Logger | None = None
 ) -> None:
     """
     Valide un fichier CSV et affiche les lignes problématiques.
@@ -230,7 +229,7 @@ def save_problematic_lines(
     output_path: Path,
     delimiter: str = ',',
     encoding: str = 'utf-8',
-    logger: Optional[logging.Logger] = None
+    logger: logging.Logger | None = None
 ) -> None:
     """
     Sauvegarde les numéros de lignes problématiques dans un fichier.
@@ -270,7 +269,7 @@ def correct_csv(
     encoding: str = 'utf-8',
     show_progress: bool = True,
     chunk_size: int = 100000,
-    logger: Optional[logging.Logger] = None
+    logger: logging.Logger | None = None
 ) -> None:
     """
     Corrige un fichier CSV en supprimant les retours à la ligne intempestifs
@@ -313,12 +312,12 @@ def correct_csv(
     # Compter le nombre de lignes dans le fichier original
     original_lines_count = 0
     try:
-        with open(csv_path, 'r', encoding=encoding, newline='') as f:
+        with open(csv_path, encoding=encoding, newline='') as f:
             for line in f:
                 if line.strip():  # Ignorer les lignes vides
                     original_lines_count += 1
     except UnicodeDecodeError:
-        with open(csv_path, 'r', encoding='latin-1', newline='') as f:
+        with open(csv_path, encoding='latin-1', newline='') as f:
             for line in f:
                 if line.strip():
                     original_lines_count += 1
@@ -335,10 +334,10 @@ def correct_csv(
         current_buffer = ""  # Buffer pour accumuler les lignes incomplètes
         original_line_count = 0  # Nombre de lignes originales fusionnées
 
-        with open(csv_path, 'r', encoding=enc, newline='', buffering=8192*16) as infile, \
+        with open(csv_path, encoding=enc, newline='', buffering=8192*16) as infile, \
              open(output_path, 'w', encoding=enc, newline='', buffering=8192*16) as outfile:
 
-            for line_num, line in enumerate(infile, start=1):
+            for _line_num, line in enumerate(infile, start=1):
                 # Ajouter la ligne au buffer
                 if current_buffer:
                     # Fusionner avec la ligne précédente (remplacer le \n par un espace)
@@ -405,12 +404,12 @@ def correct_csv(
     # Compter le nombre total de lignes dans le fichier corrigé
     total_lines_corrected = 0
     try:
-        with open(output_path, 'r', encoding=encoding, newline='') as f:
+        with open(output_path, encoding=encoding, newline='') as f:
             for line in f:
                 if line.strip():  # Ignorer les lignes vides
                     total_lines_corrected += 1
     except UnicodeDecodeError:
-        with open(output_path, 'r', encoding='latin-1', newline='') as f:
+        with open(output_path, encoding='latin-1', newline='') as f:
             for line in f:
                 if line.strip():
                     total_lines_corrected += 1

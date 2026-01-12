@@ -1,9 +1,11 @@
 """Script pour valider les colonnes d'un CSV avec les schémas Pandera"""
 import sys
 from pathlib import Path
+
 import pandas as pd
-import colums_validator
 from pandera.errors import SchemaError
+
+import colums_validator
 
 
 def validate_csv_columns(csv_path: Path, delimiter: str = ';', table_name: str = 'individu',
@@ -79,10 +81,7 @@ def validate_csv_columns(csv_path: Path, delimiter: str = ';', table_name: str =
                         jour, mois, annee_2ch = parts
                         # Convertir l'année 2 chiffres en 4 chiffres (assumer 1900-2099)
                         annee_int = int(annee_2ch)
-                        if annee_int < 50:
-                            annee_4ch = 2000 + annee_int
-                        else:
-                            annee_4ch = 1900 + annee_int
+                        annee_4ch = 2000 + annee_int if annee_int < 50 else 1900 + annee_int
                         return f"{jour}/{mois}/{annee_4ch}"
                     return date_str
 

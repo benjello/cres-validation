@@ -1,13 +1,12 @@
 import configparser
 import shutil
 from pathlib import Path
-from typing import Optional
 
 
 class ConfigReader:
     """Lecteur de configuration pour lire les chemins de fichiers depuis config.ini"""
 
-    def __init__(self, config_path: Optional[Path] = None):
+    def __init__(self, config_path: Path | None = None):
         """
         Initialise le lecteur de configuration.
 
@@ -87,7 +86,7 @@ class ConfigReader:
             for key, value in self.config.items(section)
         }
 
-    def get(self, section: str, key: str, fallback: Optional[str] = None) -> str:
+    def get(self, section: str, key: str, fallback: str | None = None) -> str:
         """
         Récupère une valeur de configuration (peut être autre chose qu'un chemin).
 
@@ -107,10 +106,10 @@ class ConfigReader:
 
 
 # Instance globale pour faciliter l'utilisation
-_config_reader: Optional[ConfigReader] = None
+_config_reader: ConfigReader | None = None
 
 
-def get_config(config_path: Optional[Path] = None) -> ConfigReader:
+def get_config(config_path: Path | None = None) -> ConfigReader:
     """
     Obtient l'instance globale du lecteur de configuration.
 
