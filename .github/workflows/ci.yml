@@ -38,26 +38,30 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v4
-
+    
     - name: Install uv
       uses: astral-sh/setup-uv@v4
       with:
         version: "latest"
-
+    
     - name: Set up Python
       run: uv python install 3.13
-
+    
     - name: Install dependencies
       run: |
         uv sync --extra dev
-
+    
+    - name: Run ruff
+      run: |
+        uv run ruff check .
+    
     - name: Check imports
       run: |
         uv run python -m py_compile config.py csv_validator.py main.py
-
+    
     - name: Run basic syntax check
       run: |
         uv run python -c "import config, csv_validator, main; print('All modules import successfully')"

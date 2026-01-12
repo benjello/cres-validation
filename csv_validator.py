@@ -3,7 +3,6 @@ import logging
 from collections import Counter
 from pathlib import Path
 from typing import List, Tuple, Optional
-import sys
 
 
 def count_columns_in_line_fast(line: str, delimiter: str = ',') -> int:
@@ -230,7 +229,8 @@ def save_problematic_lines(
     csv_path: Path,
     output_path: Path,
     delimiter: str = ',',
-    encoding: str = 'utf-8'
+    encoding: str = 'utf-8',
+    logger: Optional[logging.Logger] = None
 ) -> None:
     """
     Sauvegarde les numéros de lignes problématiques dans un fichier.
@@ -240,6 +240,7 @@ def save_problematic_lines(
         output_path: Chemin vers le fichier de sortie
         delimiter: Délimiteur utilisé
         encoding: Encodage du fichier
+        logger: Logger optionnel
     """
     if logger is None:
         logger = logging.getLogger('cres-validation')

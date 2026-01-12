@@ -1,0 +1,28 @@
+# Configuration Ruff pour cres-validation
+line-length = 100
+target-version = "py313"
+
+[lint]
+# Règles activées
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+]
+
+# Règles ignorées
+ignore = [
+    "E501",  # line too long (géré par line-length)
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["F841"]  # Permettre variables non utilisées dans les tests
+
+[lint.isort]
+known-first-party = ["config", "csv_validator", "colums_validator", "validate_columns"]

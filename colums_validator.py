@@ -1,7 +1,6 @@
 from functools import partial
 
 import pandas as pd
-import pandera as pa
 from pandera import Check, Column, DataFrameSchema
 
 DATE_MIN = 1900

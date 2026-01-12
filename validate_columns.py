@@ -6,11 +6,11 @@ import colums_validator
 from pandera.errors import SchemaError
 
 
-def validate_csv_columns(csv_path: Path, delimiter: str = ';', table_name: str = 'individu', 
+def validate_csv_columns(csv_path: Path, delimiter: str = ';', table_name: str = 'individu',
                          column_mapping: dict = None):
     """
     Valide les colonnes d'un CSV avec les schémas Pandera.
-    
+
     Args:
         csv_path: Chemin vers le fichier CSV
         delimiter: Délimiteur utilisé
@@ -22,25 +22,25 @@ def validate_csv_columns(csv_path: Path, delimiter: str = ';', table_name: str =
     print(f"Schéma utilisé: {table_name}")
     print(f"Délimiteur: '{delimiter}'")
     print("-" * 60)
-    
+
     # Vérifier que le schéma existe
     if table_name not in colums_validator.schema_by_table:
         available = list(colums_validator.schema_by_table.keys())
         raise ValueError(f"Schéma '{table_name}' introuvable. Schémas disponibles: {available}")
-    
+
     schema = colums_validator.schema_by_table[table_name]
-    
+
     try:
         # Lire le CSV sans en-tête
         print("Lecture du fichier CSV...")
         df = pd.read_csv(csv_path, delimiter=delimiter, dtype=str, keep_default_na=False, header=None)
-        
+
         print(f"Nombre de lignes: {len(df)}")
         print(f"Nombre de colonnes: {len(df.columns)}")
-        
+
         # Si un mapping est fourni, renommer les colonnes
         if column_mapping:
-            print(f"\nApplication du mapping des colonnes...")
+            print("\nApplication du mapping des colonnes...")
             # Créer un DataFrame avec les colonnes renommées
             df_mapped = pd.DataFrame()
             for schema_col, csv_index in column_mapping.items():
@@ -49,13 +49,13 @@ def validate_csv_columns(csv_path: Path, delimiter: str = ';', table_name: str =
                     print(f"  {schema_col} <- colonne [{csv_index}]")
                 else:
                     print(f"⚠️  Index {csv_index} hors limites pour la colonne {schema_col}")
-            
+
             # Conversions spéciales
             if 'sexe' in df_mapped.columns:
                 # Convertir M/F en Homme/Femme
                 df_mapped['sexe'] = df_mapped['sexe'].map({'M': 'Homme', 'F': 'Femme', '': ''})
                 print("  Conversion sexe: M->Homme, F->Femme")
-            
+
             if 'role_menage' in df_mapped.columns:
                 # Convertir en int, remplacer les valeurs vides par 0 ou NaN selon le schéma
                 df_mapped['role_menage'] = pd.to_numeric(df_mapped['role_menage'], errors='coerce').astype('Int64')
@@ -68,7 +68,7 @@ def validate_csv_columns(csv_path: Path, delimiter: str = ';', table_name: str =
                 else:
                     df_mapped['role_menage'] = df_mapped['role_menage'].astype(int)
                 print("  Conversion role_menage en int")
-            
+
             if 'date_naissance' in df_mapped.columns:
                 # Convertir JJ/MM/AA en JJ/MM/AAAA
                 def convert_date(date_str):
@@ -85,10 +85,10 @@ def validate_csv_columns(csv_path: Path, delimiter: str = ';', table_name: str =
                             annee_4ch = 1900 + annee_int
                         return f"{jour}/{mois}/{annee_4ch}"
                     return date_str
-                
+
                 df_mapped['date_naissance'] = df_mapped['date_naissance'].apply(convert_date)
                 print("  Conversion date_naissance: JJ/MM/AA -> JJ/MM/AAAA")
-            
+
             # Ajouter les colonnes manquantes avec des valeurs par défaut
             required_cols = set(schema.columns.keys())
             missing_cols = required_cols - set(df_mapped.columns)
@@ -100,7 +100,7 @@ def validate_csv_columns(csv_path: Path, delimiter: str = ';', table_name: str =
                 else:
                     df_mapped[col] = None
                     print(f"  Ajout colonne '{col}' avec valeur par défaut (None)")
-            
+
             df = df_mapped
         else:
             # Essayer de détecter automatiquement les colonnes
@@ -112,29 +112,29 @@ def validate_csv_columns(csv_path: Path, delimiter: str = ';', table_name: str =
                 sample_value = df.iloc[0, i] if len(df) > 0 else ""
                 print(f"  [{i}]: {sample_value}")
             return False
-        
+
         print(f"Colonnes mappées: {list(df.columns)}")
-        
+
         # Vérifier que les colonnes requises existent
         required_cols = set(schema.columns.keys())
         actual_cols = set(df.columns)
         missing_cols = required_cols - actual_cols
-        
+
         if missing_cols:
             print(f"\n⚠️  Colonnes manquantes: {missing_cols}")
             return False
-        
+
         # Valider avec le schéma
         print("\nValidation avec le schéma Pandera...")
         try:
-            validated_df = schema.validate(df)
+            schema.validate(df)
             print("✅ Validation réussie ! Toutes les colonnes sont valides.")
             return True
         except SchemaError as e:
-            print(f"❌ Erreur de validation:")
+            print("❌ Erreur de validation:")
             print(str(e))
             return False
-            
+
     except Exception as e:
         print(f"❌ Erreur lors de la lecture/validation: {e}")
         import traceback
@@ -144,7 +144,7 @@ def validate_csv_columns(csv_path: Path, delimiter: str = ';', table_name: str =
 
 if __name__ == "__main__":
     from config import get_config
-    
+
     # Mapping des colonnes pour le schéma 'individu'
     # Basé sur la structure observée: ;numéro;id_membre;sexe;date_naissance;role;...
     # Note: 'lib' peut ne pas être présent dans ce CSV, on le laisse vide si nécessaire
@@ -156,7 +156,7 @@ if __name__ == "__main__":
         'id_anonymized_chef': 1,  # Colonne 1: numéro (peut-être l'id du chef?)
         # 'lib' n'est pas dans ce CSV, on le laissera vide
     }
-    
+
     if len(sys.argv) > 1:
         csv_path = Path(sys.argv[1])
         table_name = sys.argv[2] if len(sys.argv) > 2 else 'individu'
@@ -167,10 +167,10 @@ if __name__ == "__main__":
         csv_path = config.get_path("paths", "input_dir") / "echantillon_cnrps_pb_fondation_fidaa.csv"
         table_name = 'individu'
         column_mapping = INDIVIDU_COLUMN_MAPPING
-    
+
     if not csv_path.exists():
         print(f"❌ Fichier introuvable: {csv_path}")
         sys.exit(1)
-    
+
     success = validate_csv_columns(csv_path, delimiter=';', table_name=table_name, column_mapping=column_mapping)
     sys.exit(0 if success else 1)
