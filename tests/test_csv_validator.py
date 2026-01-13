@@ -9,7 +9,7 @@ from csv_validator import analyze_csv_columns, correct_csv, validate_csv
 # Chemin vers les fichiers de test dans fixtures
 TESTS_DIR = Path(__file__).parent
 FIXTURES_DIR = TESTS_DIR / "fixtures"
-INPUT_FILE = FIXTURES_DIR / "input.csv"
+INPUT_FILE = FIXTURES_DIR / "input" / "csv" / "test_file_with_spaces.csv"
 EXPECTED_OUTPUT_FILE = FIXTURES_DIR / "expected_output.csv"
 
 
