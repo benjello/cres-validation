@@ -29,7 +29,7 @@ def test_analyze_csv_columns():
     """Test de l'analyse des colonnes du fichier d'entrée"""
     expected_cols, problematic_lines, column_counter, problematic_lines_dict = analyze_csv_columns(
         INPUT_FILE,
-        delimiter=';',
+        delimiter=',',
         show_progress=False
     )
 
@@ -49,7 +49,7 @@ def test_validate_csv():
     try:
         validate_csv(
             INPUT_FILE,
-            delimiter=';',
+            delimiter=',',
             show_progress=False
         )
     except Exception as e:
@@ -64,7 +64,7 @@ def test_correct_csv(tmp_path):
     correct_csv(
         INPUT_FILE,
         output_file,
-        delimiter=';',
+        delimiter=',',
         show_progress=False
     )
 
@@ -86,7 +86,7 @@ def test_correct_csv(tmp_path):
         f"Le nombre de lignes diffère: {len(lines1)} vs {len(lines2)}"
 
     # Vérifier que toutes les lignes ont le même nombre de colonnes
-    delimiter = ';'
+    delimiter = ','
     for i, (line1, line2) in enumerate(zip(lines1, lines2, strict=True), start=1):
         cols1 = line1.count(delimiter) + 1
         cols2 = line2.count(delimiter) + 1
@@ -95,7 +95,7 @@ def test_correct_csv(tmp_path):
 
     # Vérifier que toutes les lignes de données ont le bon nombre de colonnes
     # (ignorer le header s'il existe)
-    expected_cols, _, _, _ = analyze_csv_columns(INPUT_FILE, delimiter=';', show_progress=False)
+    expected_cols, _, _, _ = analyze_csv_columns(INPUT_FILE, delimiter=',', show_progress=False)
     # Le header peut avoir un nombre de colonnes différent, on vérifie à partir de la ligne 2
     data_lines = lines1[1:] if len(lines1) > 1 and lines1[0].startswith(';matricul') else lines1
     for i, line in enumerate(data_lines, start=2 if len(lines1) > 1 and lines1[0].startswith(';matricul') else 1):
@@ -116,7 +116,7 @@ def test_correct_csv_number_of_lines(tmp_path):
     correct_csv(
         INPUT_FILE,
         output_file,
-        delimiter=';',
+        delimiter=',',
         show_progress=False
     )
 
@@ -142,7 +142,7 @@ def test_validate_columns_with_pandera(tmp_path):
     correct_csv(
         INPUT_FILE,
         output_file,
-        delimiter=';',
+        delimiter=',',
         show_progress=False
     )
 
@@ -156,7 +156,7 @@ def test_validate_columns_with_pandera(tmp_path):
     }
 
     # Lire le CSV corrigé (sans header car on utilise header=None)
-    df = pd.read_csv(output_file, delimiter=';', dtype=str, keep_default_na=False, header=None)
+    df = pd.read_csv(output_file, delimiter=',', dtype=str, keep_default_na=False, header=None)
 
     # Ignorer le header si présent (première ligne qui contient 'matricul' dans la première colonne)
     # La première colonne peut être vide (commence par ;), donc on vérifie la deuxième colonne
