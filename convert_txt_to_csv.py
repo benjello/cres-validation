@@ -94,7 +94,7 @@ def convert_txt_to_csv(source_dir: Path, csv_dir: Path) -> None:
 
             # Remplacer les délimiteurs ; par , (sans corriger les lignes incomplètes)
             content = content.replace(';', ',')
-            
+
             # Écrire en UTF-8 dans le fichier CSV
             with open(csv_file, 'w', encoding='utf-8') as outfile:
                 outfile.write(content)
