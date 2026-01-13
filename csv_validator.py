@@ -370,9 +370,7 @@ def correct_csv(
                             lines_written += 1
                             if original_line_count > 1:
                                 lines_corrected += 1
-                            current_buffer = ""
-                            original_line_count = 0
-                            # Maintenant, ajouter la ligne actuelle au buffer vide
+                            # Vider le buffer et commencer avec la nouvelle ligne
                             current_buffer = line
                             original_line_count = 1
                             continue
@@ -382,23 +380,20 @@ def correct_csv(
                             lines_written += 1
                             if original_line_count > 1:
                                 lines_corrected += 1
-                            current_buffer = ""
-                            original_line_count = 0
-                            # Maintenant, ajouter la ligne actuelle au buffer vide
+                            # Vider le buffer et commencer avec la nouvelle ligne
                             current_buffer = line
                             original_line_count = 1
                             continue
+                        else:
+                            # Buffer incomplet : fusionner avec la ligne suivante
+                            current_buffer = current_buffer.rstrip('\n\r') + ' ' + line
+                            original_line_count += 1
+                            continue
 
-                # Si on arrive ici, le buffer est vide ou incomplet
-                # Ajouter la ligne actuelle au buffer
-                if current_buffer:
-                    # Buffer incomplet : fusionner avec la ligne suivante
-                    current_buffer = current_buffer.rstrip('\n\r') + ' ' + line
-                    original_line_count += 1
-                else:
-                    # Buffer vide : commencer avec cette ligne
-                    current_buffer = line
-                    original_line_count = 1
+                # Si on arrive ici, le buffer est vide
+                # Commencer avec cette ligne
+                current_buffer = line
+                original_line_count = 1
 
                 if show_progress and lines_written % chunk_size == 0:
                     logger.debug(f"Traité {lines_written:,} lignes écrites, {lines_corrected:,} corrigées...")
