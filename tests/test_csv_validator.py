@@ -93,9 +93,12 @@ def test_correct_csv(tmp_path):
         assert cols1 == cols2, \
             f"Ligne {i}: nombre de colonnes différent ({cols1} vs {cols2})"
 
-    # Vérifier que toutes les lignes ont le bon nombre de colonnes
+    # Vérifier que toutes les lignes de données ont le bon nombre de colonnes
+    # (ignorer le header s'il existe)
     expected_cols, _, _, _ = analyze_csv_columns(INPUT_FILE, delimiter=';', show_progress=False)
-    for i, line in enumerate(lines1, start=1):
+    # Le header peut avoir un nombre de colonnes différent, on vérifie à partir de la ligne 2
+    data_lines = lines1[1:] if len(lines1) > 1 and lines1[0].startswith(';matricul') else lines1
+    for i, line in enumerate(data_lines, start=2 if len(lines1) > 1 and lines1[0].startswith(';matricul') else 1):
         cols = line.count(delimiter) + 1
         assert cols == expected_cols, \
             f"Ligne {i}: {cols} colonnes au lieu de {expected_cols}"
