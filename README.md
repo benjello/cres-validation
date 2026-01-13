@@ -4,6 +4,8 @@
 
 Outil de validation et correction de fichiers CSV pour le projet CRES.
 
+📚 **Documentation complète** : [https://benjello.github.io/cres-validation/](https://benjello.github.io/cres-validation/)
+
 ## Fonctionnalités
 
 - ✅ Détection des lignes avec un nombre de colonnes incorrect
@@ -61,9 +63,21 @@ uv run python main.py --correct -vv
 uv run pytest tests/ -v
 ```
 
+## Documentation
+
+📚 **Documentation complète** : [https://benjello.github.io/cres-validation/](https://benjello.github.io/cres-validation/)
+
+La documentation inclut :
+
+- Guide d'installation et de configuration
+- Guide d'utilisation avec exemples
+- Documentation complète de l'API
+- Guide des tests (y compris tests de performance)
+- Guide de développement
+
 ## Structure du projet
 
-```
+```text
 cres-validation/
 ├── cres_validation/        # Package principal
 │   ├── __init__.py        # Exports publics

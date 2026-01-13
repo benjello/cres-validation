@@ -8,7 +8,9 @@ from cres_validation import get_config
 from cres_validation.columns_number_validator import correct_csv, validate_csv
 
 
-def setup_logger(log_file: Path, verbose: int = 0, additional_log_file: Path | None = None) -> logging.Logger:
+def setup_logger(
+    log_file: Path, verbose: int = 0, additional_log_file: Path | None = None
+) -> logging.Logger:
     """
     Configure le logger avec les niveaux de verbosité.
 
@@ -29,24 +31,23 @@ def setup_logger(log_file: Path, verbose: int = 0, additional_log_file: Path | N
         level = logging.WARNING
 
     # Créer le logger
-    logger = logging.getLogger('cres-validation')
+    logger = logging.getLogger("cres-validation")
     logger.setLevel(level)
 
     # Formatter pour les messages
     formatter = logging.Formatter(
-        '%(asctime)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        "%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
 
     # Handler pour le fichier principal (tous les niveaux)
-    file_handler = logging.FileHandler(log_file, encoding='utf-8')
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
     file_handler.setLevel(logging.DEBUG)  # Tout dans le fichier
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
     # Handler pour le fichier de log supplémentaire si spécifié
     if additional_log_file:
-        additional_file_handler = logging.FileHandler(additional_log_file, encoding='utf-8')
+        additional_file_handler = logging.FileHandler(additional_log_file, encoding="utf-8")
         additional_file_handler.setLevel(logging.DEBUG)  # Tout dans le fichier
         additional_file_handler.setFormatter(formatter)
         logger.addHandler(additional_file_handler)
@@ -65,13 +66,14 @@ def main():
     parser.add_argument(
         "--correct",
         action="store_true",
-        help="Corriger les fichiers CSV en supprimant les retours à la ligne intempestifs"
+        help="Corriger les fichiers CSV en supprimant les retours à la ligne intempestifs",
     )
     parser.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         action="count",
         default=0,
-        help="Augmenter la verbosité (utiliser -v pour INFO, -vv pour DEBUG)"
+        help="Augmenter la verbosité (utiliser -v pour INFO, -vv pour DEBUG)",
     )
     args = parser.parse_args()
 
@@ -150,7 +152,7 @@ def main():
                         output_file,
                         delimiter=delimiter,
                         show_progress=args.verbose >= 1,
-                        logger=logger
+                        logger=logger,
                     )
                 else:
                     # Mode validation : valider le fichier
@@ -158,10 +160,12 @@ def main():
                         csv_file,
                         delimiter=delimiter,
                         show_progress=args.verbose >= 1,
-                        logger=logger
+                        logger=logger,
                     )
             except Exception as e:
-                logger.error(f"Erreur lors du traitement de {csv_file.name}: {e}", exc_info=args.verbose >= 2)
+                logger.error(
+                    f"Erreur lors du traitement de {csv_file.name}: {e}", exc_info=args.verbose >= 2
+                )
 
         logger.info("=" * 60)
         if args.correct:

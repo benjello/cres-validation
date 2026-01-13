@@ -23,6 +23,13 @@ Ce module contient les fonctions pour valider et corriger le nombre de colonnes 
 
 Analyse un fichier CSV pour détecter les lignes avec un nombre de colonnes incorrect.
 
+**Fonctionnalités importantes :**
+
+- Le header est traité séparément des lignes de données
+- Le header peut avoir une colonne supplémentaire (ex: 59 vs 58 colonnes)
+- Le nombre de colonnes attendu est basé uniquement sur les lignes de données
+- Optimisé pour les gros fichiers (millions de lignes) avec traitement en deux passes
+
 ```python
 def analyze_csv_columns(
     csv_path: Path,
@@ -47,9 +54,9 @@ def analyze_csv_columns(
 
 **Retourne :**
 
-- `expected_columns` : Nombre de colonnes attendu
+- `expected_columns` : Nombre de colonnes attendu (basé sur les lignes de données, pas le header)
 - `problematic_lines_list` : Liste des numéros de lignes problématiques
-- `column_counter` : Counter avec la répartition des colonnes
+- `column_counter` : Counter avec la répartition des colonnes (lignes de données uniquement)
 - `problematic_lines_dict` : Dictionnaire {line_num: col_count} des lignes problématiques
 
 **Exemple :**
@@ -103,6 +110,13 @@ validate_csv(Path("data.csv"), delimiter=",")
 
 Corrige un fichier CSV en fusionnant les lignes incomplètes.
 
+**Fonctionnalités importantes :**
+
+- Ajuste automatiquement le header si nécessaire (supprime les colonnes vides en trop)
+- Compare le header avec la première ligne de données pour détecter les colonnes supplémentaires
+- Fusionne les lignes incomplètes avec les lignes suivantes jusqu'à obtenir le bon nombre de colonnes
+- Optimisé pour les gros fichiers avec traitement en deux passes
+
 ```python
 def correct_csv(
     csv_path: Path,
@@ -124,6 +138,12 @@ def correct_csv(
 - `show_progress` : Afficher la progression
 - `chunk_size` : Taille des chunks pour la progression
 - `logger` : Logger optionnel
+
+**Comportement :**
+
+- Si le header a une colonne de plus que les données, la dernière colonne vide est supprimée
+- Le header ajusté est écrit avec le même nombre de colonnes que les données
+- Les lignes de données sont fusionnées si elles ont moins de colonnes que le nombre attendu
 
 **Exemple :**
 

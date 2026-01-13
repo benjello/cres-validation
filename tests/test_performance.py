@@ -1,11 +1,12 @@
 """Tests de performance pour mesurer le temps d'exécution"""
+
 import logging
 import time
 from pathlib import Path
 
 import pytest
 
-from cres_validation.columns_number_validator import analyze_csv_columns, correct_csv, validate_csv
+from cres_validation.columns_number_validator import analyze_csv_columns, correct_csv
 from cres_validation.convert_txt_to_csv import convert_txt_to_csv
 
 # Chemin vers les fichiers de test dans fixtures
@@ -19,16 +20,16 @@ LOGS_DIR = FIXTURES_DIR / "logs"
 # Fichier source original (petit, stocké dans le repo)
 SOURCE_FILE = SOURCE_DIR / "echantillon cnrps pb fondation fidaa.txt"
 
-DELIMITER = ','
+DELIMITER = ","
 
 
 @pytest.fixture
 def performance_logger():
     """Logger pour les tests de performance"""
-    logger = logging.getLogger('cres-validation.performance')
+    logger = logging.getLogger("cres-validation.performance")
     if not logger.handlers:
         handler = logging.StreamHandler()
-        handler.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
+        handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
         logger.addHandler(handler)
         logger.setLevel(logging.INFO)
     return logger
@@ -59,8 +60,8 @@ def generate_test_file(num_lines: int, output_path: Path, source_file: Path = SO
         raise FileNotFoundError(f"Fichier source non trouvé: {source_file}")
 
     # Lire le fichier source
-    with open(source_file, 'r', encoding='utf-8') as f:
-        lines = [line.rstrip('\n\r') for line in f if line.strip()]
+    with open(source_file, encoding="utf-8") as f:
+        lines = [line.rstrip("\n\r") for line in f if line.strip()]
 
     if not lines:
         raise ValueError("Le fichier source est vide")
@@ -72,13 +73,13 @@ def generate_test_file(num_lines: int, output_path: Path, source_file: Path = SO
         raise ValueError("Le fichier source n'a pas de lignes de données")
 
     # Générer le fichier de test
-    with open(output_path, 'w', encoding='utf-8', buffering=8192*16) as f:
-        f.write(header + '\n')
+    with open(output_path, "w", encoding="utf-8", buffering=8192 * 16) as f:
+        f.write(header + "\n")
         # Dupliquer les lignes existantes pour atteindre le nombre de lignes souhaité
         for i in range(num_lines):
             if (i + 1) % 100_000 == 0 and num_lines >= 100_000:
                 print(f"  Génération: {(i + 1) // 1000}k lignes...")
-            f.write(data_lines[i % len(data_lines)] + '\n')
+            f.write(data_lines[i % len(data_lines)] + "\n")
 
 
 def test_performance_convert_1k(performance_logger, tmp_path):
@@ -107,19 +108,21 @@ def test_performance_convert_1k(performance_logger, tmp_path):
     elapsed = time.time() - start_time
 
     # Vérifier que le fichier a été créé
-    csv_file = output_dir / (test_file_in_dir.stem.replace(' ', '_') + ".csv")
+    csv_file = output_dir / (test_file_in_dir.stem.replace(" ", "_") + ".csv")
     assert csv_file.exists(), "Le fichier CSV doit être créé"
 
     # Compter les lignes
-    with open(csv_file, 'r', encoding='utf-8') as f:
+    with open(csv_file, encoding="utf-8") as f:
         line_count = sum(1 for line in f if line.strip())
 
-    print(f"\n⏱️  Performance conversion 1k lignes:")
+    print("\n⏱️  Performance conversion 1k lignes:")
     print(f"   - Temps: {format_time(elapsed)}")
     print(f"   - Lignes traitées: {line_count:,}")
     print(f"   - Vitesse: {line_count / elapsed:,.0f} lignes/seconde")
 
-    assert elapsed < 10, f"La conversion devrait prendre moins de 10 secondes, mais a pris {elapsed:.2f}s"
+    assert elapsed < 10, (
+        f"La conversion devrait prendre moins de 10 secondes, mais a pris {elapsed:.2f}s"
+    )
 
 
 def test_performance_analyze_1k(performance_logger, tmp_path):
@@ -142,7 +145,7 @@ def test_performance_analyze_1k(performance_logger, tmp_path):
     output_dir = tmp_path / "csv_1k"
     output_dir.mkdir()
     convert_txt_to_csv(test_source_dir, output_dir, logger=performance_logger)
-    csv_file = output_dir / (test_file_in_dir.stem.replace(' ', '_') + ".csv")
+    csv_file = output_dir / (test_file_in_dir.stem.replace(" ", "_") + ".csv")
 
     start_time = time.time()
 
@@ -154,7 +157,7 @@ def test_performance_analyze_1k(performance_logger, tmp_path):
 
     total_lines = sum(column_counter.values())
 
-    print(f"\n⏱️  Performance analyse 1k lignes:")
+    print("\n⏱️  Performance analyse 1k lignes:")
     print(f"   - Temps: {format_time(elapsed)}")
     print(f"   - Lignes analysées: {total_lines:,}")
     print(f"   - Lignes problématiques: {len(problematic_lines):,}")
@@ -183,28 +186,34 @@ def test_performance_correct_1k(performance_logger, tmp_path):
     output_dir = tmp_path / "csv_1k"
     output_dir.mkdir()
     convert_txt_to_csv(test_source_dir, output_dir, logger=performance_logger)
-    csv_file = output_dir / (test_file_in_dir.stem.replace(' ', '_') + ".csv")
+    csv_file = output_dir / (test_file_in_dir.stem.replace(" ", "_") + ".csv")
 
     corrected_file = tmp_path / "corrected_1k.csv"
 
     start_time = time.time()
 
     correct_csv(
-        csv_file, corrected_file, delimiter=DELIMITER, show_progress=False, logger=performance_logger
+        csv_file,
+        corrected_file,
+        delimiter=DELIMITER,
+        show_progress=False,
+        logger=performance_logger,
     )
 
     elapsed = time.time() - start_time
 
     # Compter les lignes dans le fichier corrigé
-    with open(corrected_file, 'r', encoding='utf-8') as f:
+    with open(corrected_file, encoding="utf-8") as f:
         corrected_lines = sum(1 for line in f if line.strip())
 
-    print(f"\n⏱️  Performance correction 1k lignes:")
+    print("\n⏱️  Performance correction 1k lignes:")
     print(f"   - Temps: {format_time(elapsed)}")
     print(f"   - Lignes corrigées: {corrected_lines:,}")
     print(f"   - Vitesse: {corrected_lines / elapsed:,.0f} lignes/seconde")
 
-    assert elapsed < 10, f"La correction devrait prendre moins de 10 secondes, mais a pris {elapsed:.2f}s"
+    assert elapsed < 10, (
+        f"La correction devrait prendre moins de 10 secondes, mais a pris {elapsed:.2f}s"
+    )
 
 
 @pytest.mark.slow
@@ -225,6 +234,7 @@ def test_performance_convert_1m(performance_logger, tmp_path):
     test_file_in_dir = test_source_dir / test_file.name
     # Copier le fichier au lieu de le renommer (car test_file est un Path)
     import shutil
+
     shutil.copy2(test_file, test_file_in_dir)
 
     output_dir = tmp_path / "csv_1m"
@@ -237,20 +247,22 @@ def test_performance_convert_1m(performance_logger, tmp_path):
     elapsed = time.time() - start_time
 
     # Vérifier que le fichier a été créé
-    csv_file = output_dir / (test_file_in_dir.stem.replace(' ', '_') + ".csv")
+    csv_file = output_dir / (test_file_in_dir.stem.replace(" ", "_") + ".csv")
     assert csv_file.exists(), "Le fichier CSV doit être créé"
 
     # Compter les lignes (rapide avec wc si disponible, sinon compter)
-    with open(csv_file, 'r', encoding='utf-8') as f:
+    with open(csv_file, encoding="utf-8") as f:
         line_count = sum(1 for line in f if line.strip())
 
-    print(f"\n⏱️  Performance conversion 1M lignes:")
+    print("\n⏱️  Performance conversion 1M lignes:")
     print(f"   - Temps: {format_time(elapsed)}")
     print(f"   - Lignes traitées: {line_count:,}")
     print(f"   - Vitesse: {line_count / elapsed:,.0f} lignes/seconde")
 
     # Pour 1M lignes, on accepte jusqu'à 5 minutes
-    assert elapsed < 300, f"La conversion devrait prendre moins de 5 minutes, mais a pris {format_time(elapsed)}"
+    assert elapsed < 300, (
+        f"La conversion devrait prendre moins de 5 minutes, mais a pris {format_time(elapsed)}"
+    )
 
 
 @pytest.mark.slow
@@ -271,13 +283,14 @@ def test_performance_analyze_1m(performance_logger, tmp_path):
     test_file_in_dir = test_source_dir / test_file.name
     # Copier le fichier au lieu de le renommer (car test_file est un Path)
     import shutil
+
     shutil.copy2(test_file, test_file_in_dir)
 
     # Convertir d'abord
     output_dir = tmp_path / "csv_1m"
     output_dir.mkdir()
     convert_txt_to_csv(test_source_dir, output_dir, logger=performance_logger)
-    csv_file = output_dir / (test_file_in_dir.stem.replace(' ', '_') + ".csv")
+    csv_file = output_dir / (test_file_in_dir.stem.replace(" ", "_") + ".csv")
 
     start_time = time.time()
 
@@ -289,14 +302,16 @@ def test_performance_analyze_1m(performance_logger, tmp_path):
 
     total_lines = sum(column_counter.values())
 
-    print(f"\n⏱️  Performance analyse 1M lignes:")
+    print("\n⏱️  Performance analyse 1M lignes:")
     print(f"   - Temps: {format_time(elapsed)}")
     print(f"   - Lignes analysées: {total_lines:,}")
     print(f"   - Lignes problématiques: {len(problematic_lines):,}")
     print(f"   - Vitesse: {total_lines / elapsed:,.0f} lignes/seconde")
 
     # Pour 1M lignes, on accepte jusqu'à 2 minutes
-    assert elapsed < 120, f"L'analyse devrait prendre moins de 2 minutes, mais a pris {format_time(elapsed)}"
+    assert elapsed < 120, (
+        f"L'analyse devrait prendre moins de 2 minutes, mais a pris {format_time(elapsed)}"
+    )
 
 
 @pytest.mark.slow
@@ -317,13 +332,14 @@ def test_performance_correct_1m(performance_logger, tmp_path):
     test_file_in_dir = test_source_dir / test_file.name
     # Copier le fichier au lieu de le renommer (car test_file est un Path)
     import shutil
+
     shutil.copy2(test_file, test_file_in_dir)
 
     # Convertir d'abord
     output_dir = tmp_path / "csv_1m"
     output_dir.mkdir()
     convert_txt_to_csv(test_source_dir, output_dir, logger=performance_logger)
-    csv_file = output_dir / (test_file_in_dir.stem.replace(' ', '_') + ".csv")
+    csv_file = output_dir / (test_file_in_dir.stem.replace(" ", "_") + ".csv")
 
     corrected_file = tmp_path / "corrected_1m.csv"
 
@@ -336,13 +352,15 @@ def test_performance_correct_1m(performance_logger, tmp_path):
     elapsed = time.time() - start_time
 
     # Compter les lignes dans le fichier corrigé
-    with open(corrected_file, 'r', encoding='utf-8') as f:
+    with open(corrected_file, encoding="utf-8") as f:
         corrected_lines = sum(1 for line in f if line.strip())
 
-    print(f"\n⏱️  Performance correction 1M lignes:")
+    print("\n⏱️  Performance correction 1M lignes:")
     print(f"   - Temps: {format_time(elapsed)}")
     print(f"   - Lignes corrigées: {corrected_lines:,}")
     print(f"   - Vitesse: {corrected_lines / elapsed:,.0f} lignes/seconde")
 
     # Pour 1M lignes, on accepte jusqu'à 5 minutes
-    assert elapsed < 300, f"La correction devrait prendre moins de 5 minutes, mais a pris {format_time(elapsed)}"
+    assert elapsed < 300, (
+        f"La correction devrait prendre moins de 5 minutes, mais a pris {format_time(elapsed)}"
+    )

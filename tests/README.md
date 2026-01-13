@@ -4,7 +4,7 @@ Ce répertoire contient les tests unitaires pour le projet cres-validation.
 
 ## Structure
 
-```
+```text
 tests/
 ├── __init__.py
 ├── test_columns_validator.py # Tests pour le module columns_number_validator

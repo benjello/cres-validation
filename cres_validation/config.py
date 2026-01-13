@@ -43,7 +43,7 @@ class ConfigReader:
                     f"Et le fichier template {package_config} est introuvable."
                 )
 
-        self.config.read(self.config_path, encoding='utf-8')
+        self.config.read(self.config_path, encoding="utf-8")
 
     def get_path(self, section: str, key: str) -> Path:
         """
@@ -82,8 +82,7 @@ class ConfigReader:
             raise KeyError(f"Section '{section}' introuvable dans {self.config_path}")
 
         return {
-            key: Path(value).expanduser().resolve()
-            for key, value in self.config.items(section)
+            key: Path(value).expanduser().resolve() for key, value in self.config.items(section)
         }
 
     def get(self, section: str, key: str, fallback: str | None = None) -> str:

@@ -44,7 +44,8 @@ uv run python main.py
 ```
 
 Sortie :
-```
+
+```text
 INFO - 1 fichier(s) CSV trouvé(s)
 INFO - Analyse du fichier: data.csv
 INFO - Nombre de colonnes attendu: 58
@@ -85,11 +86,25 @@ correct_csv(
 
 Les fichiers de log sont créés automatiquement dans le répertoire `log_dir` configuré, avec le format :
 
-```
+```text
 cres-validation-{mode}-{date-iso}.log
 ```
 
 Exemple : `cres-validation-correction-2026-01-12.log`
+
+**Format des logs de test** :
+
+Les tests génèrent également des logs dans `tests/fixtures/logs/` avec le format :
+
+```text
+nom_du_fichier-YYYY_MM_DD-HH_MM_SS.log
+```
+
+Exemple : `echantillon_cnrps_pb_fondation_fidaa-2026_01_13-13_37_25.log`
+
+- Date et heure lisibles, séparées par un tiret
+- Un seul log produit par session de tests
+- Capture tous les messages des modules de traitement
 
 Tous les messages (tous niveaux) sont écrits dans le fichier de log, même si la console n'affiche que certains niveaux.
 
@@ -97,7 +112,7 @@ Tous les messages (tous niveaux) sont écrits dans le fichier de log, même si l
 
 Le script traite automatiquement tous les fichiers `.csv` dans le répertoire `input_dir` :
 
-```
+```text
 input_dir/
 ├── fichier1.csv
 ├── fichier2.csv
@@ -110,6 +125,11 @@ Chaque fichier sera validé ou corrigé selon le mode choisi.
 
 Après correction, vous obtiendrez :
 
-- **Fichiers corrigés** dans `output_dir` avec le même nom que les originaux
+- **Fichiers corrigés** dans `output_dir` avec le format `corrected_{nom_source}.csv`
+- **Header ajusté automatiquement** : si le header a une colonne supplémentaire, elle est supprimée
 - **Fichiers de log** dans `log_dir` avec les détails de l'opération
 - **Statistiques** : nombre de lignes originales, lignes corrigées, lignes finales
+
+### Ajustement automatique du header
+
+Le système détecte automatiquement si le header a une colonne supplémentaire par rapport aux données (ex: 59 vs 58 colonnes) et ajuste le header en conséquence. Le header corrigé aura le même nombre de colonnes que les lignes de données.

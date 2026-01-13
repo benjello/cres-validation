@@ -17,8 +17,12 @@ cres-validation/
 ├── LICENSE                # Licence AGPL v3
 ├── tests/                 # Tests unitaires
 │   ├── fixtures/         # Fichiers de test
-│   ├── test_columns_validator.py
-│   └── test_convert_txt_to_csv.py
+│   │   ├── input/       # Fichiers d'entrée (source et csv)
+│   │   ├── output/      # Fichiers de sortie attendus
+│   │   └── logs/        # Logs générés lors des tests
+│   ├── test_columns_validator.py  # Tests de validation/correction
+│   ├── test_convert_txt_to_csv.py # Tests de conversion
+│   └── test_performance.py        # Tests de performance
 ├── docs/                  # Documentation MkDocs
 │   └── *.md
 ├── .github/workflows/     # CI/CD
@@ -43,12 +47,20 @@ uv sync --extra dev
 ### Exécuter les tests
 
 ```bash
-# Tous les tests
+# Tous les tests (rapides uniquement)
 uv run pytest tests/ -v
+
+# Inclure les tests de performance lents
+uv run pytest tests/ -v -m slow
+
+# Tests de performance uniquement
+uv run pytest tests/test_performance.py -v
 
 # Avec couverture
 uv run pytest --cov=cres_validation.columns_number_validator tests/
 ```
+
+**Note** : Les tests de performance génèrent des fichiers volumineux (1M lignes) à la volée, ils ne sont pas stockés dans le repository.
 
 ### Linting et formatage
 
@@ -106,10 +118,19 @@ La documentation sera accessible sur `http://127.0.0.1:8000`
 Le projet utilise GitHub Actions pour :
 
 - **Tests** : Exécution automatique des tests sur chaque push/PR
-- **Linting** : Vérification de la syntaxe et des imports
+  - Tests rapides (20 tests) dans le job principal
+  - Tests de performance lents (3 tests) dans un job séparé non bloquant
+- **Linting** : Vérification de la syntaxe et des imports avec `ruff`
 - **Documentation** : Déploiement automatique sur GitHub Pages
 
 Voir `.github/workflows/ci.yml` et `.github/workflows/docs.yml` pour plus de détails.
+
+### Optimisations CI
+
+La CI est optimisée pour être rapide :
+- Les tests lents (1M lignes) sont exécutés mais ne bloquent pas la CI
+- Les fichiers de test volumineux sont générés à la volée (pas dans le repo)
+- Les tests rapides sont exécutés en premier pour détecter rapidement les erreurs
 
 ## Release
 
