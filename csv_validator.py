@@ -74,6 +74,7 @@ def analyze_csv_columns(
         column_counter.clear()
         total_lines = 0
         empty_lines = 0
+        is_first_line = True
 
         with open(csv_path, encoding=enc, newline='', buffering=8192*16) as f:
             for _line_num, line in enumerate(f, start=1):
@@ -81,6 +82,13 @@ def analyze_csv_columns(
                 if not stripped.strip():
                     empty_lines += 1
                     continue
+
+                # Ignorer le header (première ligne qui ressemble à un header)
+                if is_first_line:
+                    if stripped.startswith(';') and ('matricul' in stripped.lower() or 'cin' in stripped.lower()):
+                        is_first_line = False
+                        continue
+                    is_first_line = False
 
                 total_lines += 1
                 col_count = count_columns_in_line_fast(stripped, delimiter)
