@@ -1,5 +1,4 @@
 """Tests pour le module csv_validator"""
-from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -72,11 +71,11 @@ def test_correct_csv(tmp_path):
     # Vérifier que toutes les lignes ont le même nombre de colonnes
     # D'abord, déterminer le nombre de colonnes attendu
     expected_cols, _, _, _ = analyze_csv_columns(INPUT_FILE, delimiter=';', show_progress=False)
-    
+
     delimiter = ';'
     with open(output_file, encoding='utf-8') as f:
         lines = [line.strip() for line in f if line.strip()]
-    
+
     # Vérifier que toutes les lignes ont le bon nombre de colonnes
     for i, line in enumerate(lines, start=1):
         cols = line.count(delimiter) + 1
