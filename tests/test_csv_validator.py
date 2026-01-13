@@ -155,8 +155,12 @@ def test_validate_columns_with_pandera(tmp_path):
         'id_anonymized_chef': 1,
     }
 
-    # Lire le CSV corrigé
+    # Lire le CSV corrigé (sans header car on utilise header=None)
     df = pd.read_csv(output_file, delimiter=';', dtype=str, keep_default_na=False, header=None)
+    
+    # Ignorer le header si présent (première ligne qui commence par ;matricul)
+    if len(df) > 0 and str(df.iloc[0, 0]).startswith(';') and 'matricul' in str(df.iloc[0, 0]).lower():
+        df = df.iloc[1:].reset_index(drop=True)
 
     # Créer un DataFrame avec les colonnes mappées
     df_mapped = pd.DataFrame()
