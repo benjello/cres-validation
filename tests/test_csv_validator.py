@@ -21,35 +21,35 @@ def setup_test_logger():
     """Configure un logger pour sauvegarder les résultats des tests"""
     # Créer le répertoire de logs s'il n'existe pas
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
-    
+
     # Créer un fichier de log avec timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file = LOGS_DIR / f"test_results_{timestamp}.log"
-    
+
     # Configurer le logger
     logger = logging.getLogger('test-csv-validator')
     logger.setLevel(logging.DEBUG)
-    
+
     # Formatter
     formatter = logging.Formatter(
         '%(asctime)s - %(levelname)s - %(name)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-    
+
     # Handler pour le fichier
     file_handler = logging.FileHandler(log_file, encoding='utf-8')
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
-    
+
     # Handler pour la console (optionnel, pour voir les logs pendant les tests)
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
-    
+
     yield logger
-    
+
     # Nettoyer après les tests
     for handler in logger.handlers[:]:
         handler.close()
@@ -79,7 +79,7 @@ def test_analyze_csv_columns(test_logger):
     test_logger.info("=" * 60)
     test_logger.info("Test: test_analyze_csv_columns")
     test_logger.info(f"Fichier d'entrée: {INPUT_FILE}")
-    
+
     expected_cols, problematic_lines, column_counter, problematic_lines_dict = analyze_csv_columns(
         INPUT_FILE,
         delimiter=',',
@@ -109,7 +109,7 @@ def test_validate_csv(test_logger):
     test_logger.info("=" * 60)
     test_logger.info("Test: test_validate_csv")
     test_logger.info(f"Fichier d'entrée: {INPUT_FILE}")
-    
+
     # Cette fonction ne fait que logger, on vérifie qu'elle ne lève pas d'exception
     try:
         validate_csv(
@@ -122,7 +122,7 @@ def test_validate_csv(test_logger):
     except Exception as e:
         test_logger.error(f"✗ validate_csv a levé une exception: {e}", exc_info=True)
         pytest.fail(f"validate_csv a levé une exception: {e}")
-    
+
     test_logger.info("Test réussi: test_validate_csv")
 
 
@@ -133,7 +133,9 @@ def test_correct_csv(tmp_path, test_logger):
     test_logger.info(f"Fichier d'entrée: {INPUT_FILE}")
     test_logger.info(f"Fichier de sortie attendu: {EXPECTED_OUTPUT_FILE}")
     
-    output_file = tmp_path / "corrected_output.csv"
+    # Nommer le fichier de sortie: corrected_{nom_sans_extension}.csv
+    source_name = INPUT_FILE.stem
+    output_file = tmp_path / f"corrected_{source_name}.csv"
     test_logger.info(f"Fichier de sortie temporaire: {output_file}")
 
     # Corriger le fichier
@@ -166,7 +168,7 @@ def test_correct_csv(tmp_path, test_logger):
 
     test_logger.info(f"Nombre de lignes dans le fichier corrigé: {len(lines1)}")
     test_logger.info(f"Nombre de lignes dans le fichier attendu: {len(lines2)}")
-    
+
     assert len(lines1) == len(lines2), \
         f"Le nombre de lignes diffère: {len(lines1)} vs {len(lines2)}"
     test_logger.info(f"✓ Nombre de lignes correspond: {len(lines1)}")
@@ -181,7 +183,7 @@ def test_correct_csv(tmp_path, test_logger):
             differences.append(f"Ligne {i}: {cols1} vs {cols2}")
         assert cols1 == cols2, \
             f"Ligne {i}: nombre de colonnes différent ({cols1} vs {cols2})"
-    
+
     if differences:
         test_logger.warning(f"Différences de colonnes détectées: {differences}")
     else:
@@ -191,7 +193,7 @@ def test_correct_csv(tmp_path, test_logger):
     # (ignorer le header s'il existe)
     expected_cols, _, _, _ = analyze_csv_columns(INPUT_FILE, delimiter=',', show_progress=False)
     test_logger.info(f"Nombre de colonnes attendu pour les données: {expected_cols}")
-    
+
     # Le header peut avoir un nombre de colonnes différent, on vérifie à partir de la ligne 2
     data_lines = lines1[1:] if len(lines1) > 1 and lines1[0].startswith(',matricul') else lines1
     incorrect_lines = []
@@ -201,12 +203,12 @@ def test_correct_csv(tmp_path, test_logger):
             incorrect_lines.append(f"Ligne {i}: {cols} colonnes")
         assert cols == expected_cols, \
             f"Ligne {i}: {cols} colonnes au lieu de {expected_cols}"
-    
+
     if incorrect_lines:
         test_logger.warning(f"Lignes avec nombre de colonnes incorrect: {incorrect_lines[:5]}")
     else:
         test_logger.info(f"✓ Toutes les lignes de données ont {expected_cols} colonnes")
-    
+
     test_logger.info("Test réussi: test_correct_csv")
 
 
@@ -216,7 +218,9 @@ def test_correct_csv_number_of_lines(tmp_path, test_logger):
     test_logger.info("Test: test_correct_csv_number_of_lines")
     test_logger.info(f"Fichier d'entrée: {INPUT_FILE}")
     
-    output_file = tmp_path / "corrected_output.csv"
+    # Nommer le fichier de sortie: corrected_{nom_sans_extension}.csv
+    source_name = INPUT_FILE.stem
+    output_file = tmp_path / f"corrected_{source_name}.csv"
 
     # Compter les lignes dans le fichier original
     with open(INPUT_FILE, encoding='utf-8') as f:
@@ -258,7 +262,9 @@ def test_validate_columns_with_pandera(tmp_path, test_logger):
     test_logger.info("Test: test_validate_columns_with_pandera")
     test_logger.info(f"Fichier d'entrée: {INPUT_FILE}")
     
-    output_file = tmp_path / "corrected_output.csv"
+    # Nommer le fichier de sortie: corrected_{nom_sans_extension}.csv
+    source_name = INPUT_FILE.stem
+    output_file = tmp_path / f"corrected_{source_name}.csv"
 
     # Corriger le fichier
     test_logger.info("Début de la correction...")
@@ -326,7 +332,7 @@ def test_validate_columns_with_pandera(tmp_path, test_logger):
 
     test_logger.info(f"Nombre de lignes à valider: {len(df_mapped)}")
     test_logger.info(f"Colonnes mappées: {list(df_mapped.columns)}")
-    
+
     try:
         schema.validate(df_mapped)
         # Si on arrive ici, la validation a réussi
@@ -334,7 +340,7 @@ def test_validate_columns_with_pandera(tmp_path, test_logger):
     except Exception as e:
         test_logger.error(f"✗ Validation Pandera échouée: {e}", exc_info=True)
         pytest.fail(f"Validation Pandera échouée: {e}")
-    
+
     test_logger.info("Test réussi: test_validate_columns_with_pandera")
 
 

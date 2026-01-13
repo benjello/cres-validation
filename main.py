@@ -141,7 +141,9 @@ def main():
             try:
                 if args.correct:
                     # Mode correction : corriger le fichier
-                    output_file = output_dir / csv_file.name
+                    # Nommer le fichier de sortie: corrected_{nom_sans_extension}.csv
+                    source_name = csv_file.stem  # Nom sans extension
+                    output_file = output_dir / f"corrected_{source_name}.csv"
                     logger.debug(f"Fichier de sortie: {output_file}")
                     correct_csv(
                         csv_file,
