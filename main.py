@@ -8,13 +8,14 @@ from config import get_config
 from csv_validator import correct_csv, validate_csv
 
 
-def setup_logger(log_file: Path, verbose: int = 0) -> logging.Logger:
+def setup_logger(log_file: Path, verbose: int = 0, additional_log_file: Path | None = None) -> logging.Logger:
     """
     Configure le logger avec les niveaux de verbosité.
 
     Args:
-        log_file: Chemin vers le fichier de log
+        log_file: Chemin vers le fichier de log principal
         verbose: Niveau de verbosité (0=WARNING, 1=INFO, 2=DEBUG)
+        additional_log_file: Chemin optionnel vers un fichier de log supplémentaire
 
     Returns:
         Logger configuré
@@ -37,11 +38,18 @@ def setup_logger(log_file: Path, verbose: int = 0) -> logging.Logger:
         datefmt='%Y-%m-%d %H:%M:%S'
     )
 
-    # Handler pour le fichier (tous les niveaux)
+    # Handler pour le fichier principal (tous les niveaux)
     file_handler = logging.FileHandler(log_file, encoding='utf-8')
     file_handler.setLevel(logging.DEBUG)  # Tout dans le fichier
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
+
+    # Handler pour le fichier de log supplémentaire si spécifié
+    if additional_log_file:
+        additional_file_handler = logging.FileHandler(additional_log_file, encoding='utf-8')
+        additional_file_handler.setLevel(logging.DEBUG)  # Tout dans le fichier
+        additional_file_handler.setFormatter(formatter)
+        logger.addHandler(additional_file_handler)
 
     # Handler pour stdout (selon la verbosité)
     console_handler = logging.StreamHandler(sys.stdout)
@@ -83,13 +91,20 @@ def main():
         mode = "correction" if args.correct else "validation"
         log_file = log_dir / f"cres-validation-{mode}-{date_iso}.log"
 
-        # Configurer le logger
-        logger = setup_logger(log_file, verbose=args.verbose)
+        # Créer également un répertoire logs local s'il n'existe pas
+        local_logs_dir = Path("logs")
+        local_logs_dir.mkdir(parents=True, exist_ok=True)
+        local_log_file = local_logs_dir / f"cres-validation-{mode}-{date_iso}.log"
+
+        # Configurer le logger avec deux handlers de fichier
+        logger = setup_logger(log_file, verbose=args.verbose, additional_log_file=local_log_file)
 
         logger.info("Hello from cres-validation!")
         logger.info(f"Répertoire d'entrée: {input_dir}")
         logger.info(f"Répertoire de sortie: {output_dir}")
-        logger.info(f"Fichier de log: {log_file}")
+        logger.info(f"Fichier de log principal: {log_file}")
+        if local_log_file.exists():
+            logger.info(f"Fichier de log local: {local_log_file}")
         logger.debug(f"Niveau de verbosité: {args.verbose} ({logging.getLevelName(logger.level)})")
 
         # Vérifier que le répertoire d'entrée existe
