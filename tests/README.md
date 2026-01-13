@@ -7,7 +7,7 @@ Ce répertoire contient les tests unitaires pour le projet cres-validation.
 ```
 tests/
 ├── __init__.py
-├── test_csv_validator.py    # Tests pour le module csv_validator
+├── test_columns_validator.py # Tests pour le module columns_number_validator
 ├── fixtures/                 # Fichiers de test
 │   ├── input/
 │   │   ├── source/          # Fichiers .txt originaux (avec espaces dans les noms)
@@ -24,7 +24,7 @@ tests/
 - `fixtures/input/csv/` : Répertoire contenant les fichiers .csv convertis (utilisés pour les tests)
 - `fixtures/output/` : Répertoire pour les fichiers de sortie
   - `expected_output.csv` : Fichier CSV attendu après correction, avec toutes les lignes ayant le bon nombre de colonnes
-- `fixtures/logs/` : Répertoire pour les logs générés par les tests
+- `fixtures/logs/` : Répertoire pour les logs générés par les tests (seul le dernier log est conservé)
 
 ## Exécution des tests
 
@@ -36,10 +36,10 @@ uv run pytest
 uv run pytest -v
 
 # Exécuter un test spécifique
-uv run pytest tests/test_csv_validator.py::test_correct_csv
+uv run pytest tests/test_columns_validator.py::test_correct_csv
 
 # Exécuter avec couverture
-uv run pytest --cov=csv_validator tests/
+uv run pytest --cov=cres_validation.columns_number_validator tests/
 ```
 
 ## Tests disponibles

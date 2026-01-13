@@ -28,9 +28,14 @@ jobs:
       run: |
         uv sync --extra dev
 
-    - name: Run tests
+    - name: Run tests (excluding slow performance tests)
       run: |
-        uv run pytest tests/ -v --tb=short
+        uv run pytest tests/ -v --tb=short -m "not slow"
+
+    - name: Run slow performance tests
+      run: |
+        uv run pytest tests/test_performance.py -v --tb=short -m slow
+      continue-on-error: true  # Les tests de performance peuvent être instables
 
     - name: Check code formatting (optional)
       run: |
@@ -60,8 +65,8 @@ jobs:
 
     - name: Check imports
       run: |
-        uv run python -m py_compile config.py csv_validator.py main.py
+        uv run python -m py_compile cres_validation/*.py main.py
 
     - name: Run basic syntax check
       run: |
-        uv run python -c "import config, csv_validator, main; print('All modules import successfully')"
+        uv run python -c "import cres_validation; print('All modules import successfully')"

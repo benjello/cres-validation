@@ -36,17 +36,17 @@ uv run python main.py --correct -v
 ## Exemple d'utilisation
 
 ```python
-from csv_validator import validate_csv, correct_csv
+from cres_validation import validate_csv, correct_csv
 from pathlib import Path
 
 # Valider un fichier CSV
-validate_csv(Path("data.csv"), delimiter=";")
+validate_csv(Path("data.csv"), delimiter=",")
 
 # Corriger un fichier CSV
 correct_csv(
     Path("data.csv"),
     Path("data_corrected.csv"),
-    delimiter=";"
+    delimiter=","
 )
 ```
 

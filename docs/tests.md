@@ -11,13 +11,13 @@ uv run pytest tests/ -v
 ### Test spécifique
 
 ```bash
-uv run pytest tests/test_csv_validator.py::test_correct_csv -v
+uv run pytest tests/test_columns_validator.py::test_correct_csv -v
 ```
 
 ### Avec couverture
 
 ```bash
-uv run pytest --cov=csv_validator tests/
+uv run pytest --cov=cres_validation tests/
 ```
 
 ## Structure des tests
@@ -27,10 +27,14 @@ Les tests sont organisés dans le répertoire `tests/` :
 ```
 tests/
 ├── __init__.py
-├── test_csv_validator.py    # Tests pour le module csv_validator
+├── test_columns_validator.py # Tests pour le module columns_number_validator
+├── test_convert_txt_to_csv.py # Tests pour la conversion TXT → CSV
 ├── fixtures/                 # Fichiers de test
-│   ├── input.csv            # Fichier CSV d'entrée avec des problèmes
-│   └── expected_output.csv   # Fichier CSV attendu après correction
+│   ├── input/               # Fichiers d'entrée
+│   │   ├── source/          # Fichiers TXT source
+│   │   └── csv/             # Fichiers CSV convertis
+│   ├── output/              # Fichiers de sortie attendus
+│   └── logs/                # Logs de test
 └── README.md
 ```
 
@@ -74,8 +78,10 @@ Test que la correction réduit le nombre de lignes :
 
 Les fichiers de test dans `tests/fixtures/` sont utilisés pour :
 
-- **input.csv** : Fichier CSV d'entrée contenant des lignes avec un nombre de colonnes incorrect (retours à la ligne intempestifs)
-- **expected_output.csv** : Fichier CSV attendu après correction, avec toutes les lignes ayant le bon nombre de colonnes (58)
+- **input/source/** : Fichiers TXT source avec des espaces dans les noms
+- **input/csv/** : Fichiers CSV convertis depuis les fichiers TXT
+- **output/** : Fichiers CSV attendus après correction (format: `corrected_{nom_source}.csv`)
+- **logs/** : Logs générés lors des tests (seul le dernier log est conservé)
 
 Ces fichiers sont basés sur des données réelles du projet CRES.
 
@@ -83,7 +89,7 @@ Ces fichiers sont basés sur des données réelles du projet CRES.
 
 Pour ajouter un nouveau test :
 
-1. Créer une fonction de test dans `tests/test_csv_validator.py`
+1. Créer une fonction de test dans `tests/test_columns_validator.py` (tests pour `columns_number_validator`)
 2. Utiliser les fixtures existantes ou créer de nouvelles
 3. Vérifier que le test passe : `uv run pytest tests/ -v`
 

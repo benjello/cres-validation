@@ -4,8 +4,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from config import get_config
-from csv_validator import correct_csv, validate_csv
+from cres_validation import get_config
+from cres_validation.columns_number_validator import correct_csv, validate_csv
 
 
 def setup_logger(log_file: Path, verbose: int = 0, additional_log_file: Path | None = None) -> logging.Logger:

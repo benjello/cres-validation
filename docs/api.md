@@ -1,6 +1,23 @@
 # Référence API
 
-## Module `csv_validator`
+## Package `cres_validation`
+
+Le package `cres_validation` contient tous les modules nécessaires pour la validation et la correction de fichiers CSV.
+
+### Imports recommandés
+
+```python
+# Import depuis le package
+from cres_validation import validate_csv, correct_csv, get_config
+
+# Ou import depuis les modules spécifiques
+from cres_validation.columns_number_validator import analyze_csv_columns
+from cres_validation.config import get_config
+```
+
+## Module `cres_validation.columns_number_validator`
+
+Ce module contient les fonctions pour valider et corriger le nombre de colonnes dans les fichiers CSV. Il détecte les lignes avec un nombre de colonnes incorrect (généralement causé par des retours à la ligne intempestifs) et peut les corriger automatiquement.
 
 ### `analyze_csv_columns()`
 
@@ -39,11 +56,11 @@ def analyze_csv_columns(
 
 ```python
 from pathlib import Path
-from csv_validator import analyze_csv_columns
+from cres_validation.columns_number_validator import analyze_csv_columns
 
 expected, problematic, counter, details = analyze_csv_columns(
     Path("data.csv"),
-    delimiter=";"
+    delimiter=","
 )
 print(f"Colonnes attendues: {expected}")
 print(f"Lignes problématiques: {len(problematic)}")
@@ -77,9 +94,9 @@ def validate_csv(
 
 ```python
 from pathlib import Path
-from csv_validator import validate_csv
+from cres_validation import validate_csv
 
-validate_csv(Path("data.csv"), delimiter=";")
+validate_csv(Path("data.csv"), delimiter=",")
 ```
 
 ### `correct_csv()`
@@ -90,7 +107,7 @@ Corrige un fichier CSV en fusionnant les lignes incomplètes.
 def correct_csv(
     csv_path: Path,
     output_path: Path,
-    delimiter: str = ';',
+    delimiter: str = ',',
     encoding: str = 'utf-8',
     show_progress: bool = True,
     chunk_size: int = 100000,
@@ -112,16 +129,16 @@ def correct_csv(
 
 ```python
 from pathlib import Path
-from csv_validator import correct_csv
+from cres_validation import correct_csv
 
 correct_csv(
     Path("data.csv"),
     Path("data_corrected.csv"),
-    delimiter=";"
+    delimiter=","
 )
 ```
 
-## Module `config`
+## Module `cres_validation.config`
 
 ### `ConfigReader`
 
@@ -146,11 +163,11 @@ class ConfigReader:
 **Exemple :**
 
 ```python
-from config import get_config
+from cres_validation import get_config
 
 config = get_config()
 input_dir = config.get_path("paths", "input_dir")
-delimiter = config.get("csv", "delimiter", fallback=";")
+delimiter = config.get("csv", "delimiter", fallback=",")
 ```
 
 ### `get_config()`
@@ -159,4 +176,62 @@ Obtient l'instance globale du lecteur de configuration.
 
 ```python
 def get_config(config_path: Optional[Path] = None) -> ConfigReader
+```
+
+## Module `cres_validation.validate_columns`
+
+### `validate_csv_columns()`
+
+Valide les colonnes d'un CSV avec les schémas Pandera.
+
+```python
+def validate_csv_columns(
+    csv_path: Path,
+    delimiter: str = ',',
+    table_name: str = 'individu',
+    column_mapping: dict | None = None
+) -> bool
+```
+
+**Exemple :**
+
+```python
+from pathlib import Path
+from cres_validation import validate_csv_columns
+
+success = validate_csv_columns(
+    Path("data.csv"),
+    delimiter=",",
+    table_name="individu"
+)
+```
+
+## Module `cres_validation.convert_txt_to_csv`
+
+### `convert_txt_to_csv()`
+
+Convertit les fichiers `.txt` en `.csv` en remplaçant les délimiteurs.
+
+```python
+def convert_txt_to_csv(source_dir: Path, csv_dir: Path) -> None
+```
+
+**Exemple :**
+
+```python
+from pathlib import Path
+from cres_validation import convert_txt_to_csv
+
+convert_txt_to_csv(
+    Path("input/source"),
+    Path("input/csv")
+)
+```
+
+### `detect_encoding()`
+
+Détecte l'encodage d'un fichier texte.
+
+```python
+def detect_encoding(file_path: Path) -> str
 ```

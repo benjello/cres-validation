@@ -4,19 +4,26 @@
 
 ```
 cres-validation/
-├── config.py              # Module de configuration
-├── csv_validator.py       # Module de validation/correction CSV
+├── cres_validation/        # Package principal
+│   ├── __init__.py        # Exports publics
+│   ├── config.py          # Module de configuration
+│   ├── config.ini         # Template de configuration
+│   ├── columns_number_validator.py # Module de validation/correction CSV
+│   ├── colums_validator.py # Schémas Pandera
+│   ├── validate_columns.py # Validation avec Pandera
+│   └── convert_txt_to_csv.py # Conversion TXT → CSV
 ├── main.py                # Point d'entrée principal
-├── config.ini             # Template de configuration
 ├── pyproject.toml         # Configuration du projet
 ├── LICENSE                # Licence AGPL v3
 ├── tests/                 # Tests unitaires
 │   ├── fixtures/         # Fichiers de test
-│   └── test_csv_validator.py
+│   ├── test_columns_validator.py
+│   └── test_convert_txt_to_csv.py
 ├── docs/                  # Documentation MkDocs
 │   └── *.md
 ├── .github/workflows/     # CI/CD
-│   └── ci.yml
+│   ├── ci.yml
+│   └── docs.yml
 └── README.md
 ```
 
@@ -40,7 +47,7 @@ uv sync --extra dev
 uv run pytest tests/ -v
 
 # Avec couverture
-uv run pytest --cov=csv_validator tests/
+uv run pytest --cov=cres_validation.columns_number_validator tests/
 ```
 
 ### Linting et formatage

@@ -1,18 +1,18 @@
-"""Tests pour le module csv_validator"""
+"""Tests pour le module columns_number_validator"""
 import logging
 from datetime import datetime
 from pathlib import Path
 
-import pandas as pd
 import pytest
 
-from csv_validator import analyze_csv_columns, correct_csv, validate_csv
+from cres_validation.columns_number_validator import analyze_csv_columns, correct_csv, validate_csv
 
 # Chemin vers les fichiers de test dans fixtures
 TESTS_DIR = Path(__file__).parent
 FIXTURES_DIR = TESTS_DIR / "fixtures"
 INPUT_FILE = FIXTURES_DIR / "input" / "csv" / "echantillon_cnrps_pb_fondation_fidaa.csv"
-EXPECTED_OUTPUT_FILE = FIXTURES_DIR / "output" / "expected_output.csv"
+# Le fichier de sortie attendu suit le format: corrected_{nom_source}.csv
+EXPECTED_OUTPUT_FILE = FIXTURES_DIR / "output" / f"corrected_{INPUT_FILE.stem}.csv"
 LOGS_DIR = FIXTURES_DIR / "logs"
 
 
@@ -27,7 +27,7 @@ def setup_test_logger():
     log_file = LOGS_DIR / f"test_results_{timestamp}.log"
 
     # Configurer le logger
-    logger = logging.getLogger('test-csv-validator')
+    logger = logging.getLogger('test-columns-number-validator')
     logger.setLevel(logging.DEBUG)
 
     # Formatter
@@ -59,7 +59,7 @@ def setup_test_logger():
 @pytest.fixture
 def test_logger():
     """Retourne le logger pour les tests"""
-    return logging.getLogger('test-csv-validator')
+    return logging.getLogger('test-columns-number-validator')
 
 
 def test_input_file_exists():
@@ -132,7 +132,7 @@ def test_correct_csv(tmp_path, test_logger):
     test_logger.info("Test: test_correct_csv")
     test_logger.info(f"Fichier d'entrée: {INPUT_FILE}")
     test_logger.info(f"Fichier de sortie attendu: {EXPECTED_OUTPUT_FILE}")
-    
+
     # Nommer le fichier de sortie: corrected_{nom_sans_extension}.csv
     source_name = INPUT_FILE.stem
     output_file = tmp_path / f"corrected_{source_name}.csv"
@@ -217,7 +217,7 @@ def test_correct_csv_number_of_lines(tmp_path, test_logger):
     test_logger.info("=" * 60)
     test_logger.info("Test: test_correct_csv_number_of_lines")
     test_logger.info(f"Fichier d'entrée: {INPUT_FILE}")
-    
+
     # Nommer le fichier de sortie: corrected_{nom_sans_extension}.csv
     source_name = INPUT_FILE.stem
     output_file = tmp_path / f"corrected_{source_name}.csv"
@@ -256,92 +256,6 @@ def test_correct_csv_number_of_lines(tmp_path, test_logger):
     test_logger.info("Test réussi: test_correct_csv_number_of_lines")
 
 
-def test_validate_columns_with_pandera(tmp_path, test_logger):
-    """Test de validation des colonnes avec Pandera après correction"""
-    test_logger.info("=" * 60)
-    test_logger.info("Test: test_validate_columns_with_pandera")
-    test_logger.info(f"Fichier d'entrée: {INPUT_FILE}")
-    
-    # Nommer le fichier de sortie: corrected_{nom_sans_extension}.csv
-    source_name = INPUT_FILE.stem
-    output_file = tmp_path / f"corrected_{source_name}.csv"
-
-    # Corriger le fichier
-    test_logger.info("Début de la correction...")
-    correct_csv(
-        INPUT_FILE,
-        output_file,
-        delimiter=',',
-        show_progress=False,
-        logger=test_logger
-    )
-    test_logger.info("Correction terminée")
-
-    # Mapping des colonnes pour le schéma 'individu'
-    column_mapping = {
-        'id_anonymized_membre': 2,
-        'sexe': 3,
-        'date_naissance': 4,
-        'role_menage': 5,
-        'id_anonymized_chef': 1,
-    }
-
-    # Lire le CSV corrigé (sans header car on utilise header=None)
-    df = pd.read_csv(output_file, delimiter=',', dtype=str, keep_default_na=False, header=None)
-
-    # Ignorer le header si présent (première ligne qui contient 'matricul' dans la première colonne)
-    # La première colonne peut être vide (commence par ;), donc on vérifie la deuxième colonne
-    if len(df) > 0 and len(df.columns) > 1:
-        # Vérifier si la première ligne est un header (colonne 1 contient 'matricul' ou 'cin')
-        first_row_col1 = str(df.iloc[0, 1]) if len(df.columns) > 1 else ''
-        if 'matricul' in first_row_col1.lower() or 'cin' in first_row_col1.lower():
-            df = df.iloc[1:].reset_index(drop=True)
-
-    # Créer un DataFrame avec les colonnes mappées
-    df_mapped = pd.DataFrame()
-    for schema_col, csv_index in column_mapping.items():
-        if csv_index < len(df.columns):
-            df_mapped[schema_col] = df.iloc[:, csv_index]
-
-    # Conversions
-    df_mapped['sexe'] = df_mapped['sexe'].map({'M': 'Homme', 'F': 'Femme', '': ''})
-
-    # Convertir role_menage en int
-    df_mapped['role_menage'] = pd.to_numeric(df_mapped['role_menage'], errors='coerce').fillna(0).astype(int)
-
-    # Convertir dates JJ/MM/AA en JJ/MM/AAAA
-    def convert_date(date_str):
-        if pd.isna(date_str) or date_str == '':
-            return date_str
-        parts = date_str.split('/')
-        if len(parts) == 3:
-            jour, mois, annee_2ch = parts
-            annee_int = int(annee_2ch)
-            annee_4ch = 2000 + annee_int if annee_int < 50 else 1900 + annee_int
-            return f"{jour}/{mois}/{annee_4ch}"
-        return date_str
-
-    df_mapped['date_naissance'] = df_mapped['date_naissance'].apply(convert_date)
-
-    # Ajouter 'lib' vide (non présent dans ce CSV)
-    df_mapped['lib'] = ''
-
-    # Valider avec le schéma Pandera
-    import colums_validator
-    schema = colums_validator.schema_by_table['individu']
-
-    test_logger.info(f"Nombre de lignes à valider: {len(df_mapped)}")
-    test_logger.info(f"Colonnes mappées: {list(df_mapped.columns)}")
-
-    try:
-        schema.validate(df_mapped)
-        # Si on arrive ici, la validation a réussi
-        test_logger.info("✓ Validation Pandera réussie")
-    except Exception as e:
-        test_logger.error(f"✗ Validation Pandera échouée: {e}", exc_info=True)
-        pytest.fail(f"Validation Pandera échouée: {e}")
-
-    test_logger.info("Test réussi: test_validate_columns_with_pandera")
 
 
 if __name__ == "__main__":

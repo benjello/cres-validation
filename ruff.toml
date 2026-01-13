@@ -25,4 +25,4 @@ ignore = [
 "tests/*" = ["F841"]  # Permettre variables non utilisées dans les tests
 
 [lint.isort]
-known-first-party = ["config", "csv_validator", "colums_validator", "validate_columns"]
+known-first-party = ["config", "columns_number_validator", "colums_validator", "validate_columns"]

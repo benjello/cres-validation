@@ -24,7 +24,7 @@ temp_dir = /tmp/cres-validation
 
 [csv]
 # Délimiteur utilisé pour les fichiers CSV
-delimiter = ;
+delimiter = ,
 ```
 
 ## Sections de configuration
@@ -42,7 +42,7 @@ delimiter = ;
 
 | Option | Description | Valeur par défaut |
 |--------|-------------|-------------------|
-| `delimiter` | Délimiteur utilisé dans les fichiers CSV | `;` |
+| `delimiter` | Délimiteur utilisé dans les fichiers CSV | `,` |
 
 ## Chemins relatifs et absolus
 
@@ -62,13 +62,13 @@ log_dir = /var/log/cres-validation
 temp_dir = /tmp/cres-validation
 
 [csv]
-delimiter = ;
+delimiter = ,
 ```
 
 ## Accès programmatique
 
 ```python
-from config import get_config
+from cres_validation import get_config
 
 config = get_config()
 
@@ -76,5 +76,5 @@ config = get_config()
 input_dir = config.get_path("paths", "input_dir")
 
 # Récupérer une valeur
-delimiter = config.get("csv", "delimiter", fallback=";")
+delimiter = config.get("csv", "delimiter", fallback=",")
 ```

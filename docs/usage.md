@@ -63,12 +63,12 @@ Sortie détaillée avec tous les messages de debug.
 
 ```python
 from pathlib import Path
-from csv_validator import validate_csv, correct_csv
+from cres_validation import validate_csv, correct_csv
 
 # Valider un fichier
 validate_csv(
     Path("data.csv"),
-    delimiter=";",
+    delimiter=",",
     show_progress=True
 )
 
@@ -76,7 +76,7 @@ validate_csv(
 correct_csv(
     Path("data.csv"),
     Path("data_corrected.csv"),
-    delimiter=";",
+    delimiter=",",
     show_progress=True
 )
 ```
