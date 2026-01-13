@@ -358,48 +358,38 @@ def correct_csv(
                         is_first_line = False
                         continue
                     is_first_line = False
-                # Ajouter la ligne au buffer
+
+                # Si le buffer existe, vérifier s'il est complet avant d'ajouter la nouvelle ligne
                 if current_buffer:
-                    # Fusionner avec la ligne précédente (remplacer le \n par un espace)
+                    stripped = current_buffer.rstrip('\n\r')
+                    if stripped.strip():
+                        col_count = count_columns_in_line_fast(stripped, delimiter)
+                        if col_count == expected_columns:
+                            # Buffer complet : l'écrire et le vider
+                            outfile.write(current_buffer)
+                            lines_written += 1
+                            if original_line_count > 1:
+                                lines_corrected += 1
+                            current_buffer = ""
+                            original_line_count = 0
+                        elif col_count > expected_columns:
+                            # Plus de colonnes que prévu : problème, écrire quand même
+                            outfile.write(current_buffer)
+                            lines_written += 1
+                            if original_line_count > 1:
+                                lines_corrected += 1
+                            current_buffer = ""
+                            original_line_count = 0
+
+                # Maintenant, ajouter la ligne actuelle au buffer (qui est maintenant vide si elle était complète)
+                if current_buffer:
+                    # Buffer incomplet : fusionner avec la ligne suivante
                     current_buffer = current_buffer.rstrip('\n\r') + ' ' + line
                     original_line_count += 1
                 else:
+                    # Buffer vide : commencer avec cette ligne
                     current_buffer = line
                     original_line_count = 1
-
-                stripped = current_buffer.rstrip('\n\r')
-
-                # Ignorer les lignes vides complètes
-                if not stripped.strip():
-                    current_buffer = ""
-                    original_line_count = 0
-                    continue
-
-                # Compter les colonnes dans le buffer actuel
-                col_count = count_columns_in_line_fast(stripped, delimiter)
-
-                if col_count == expected_columns:
-                    # Ligne complète : l'écrire
-                    outfile.write(current_buffer)
-                    lines_written += 1
-                    # Si on a fusionné plusieurs lignes, c'est une correction
-                    if original_line_count > 1:
-                        lines_corrected += 1
-                    current_buffer = ""
-                    original_line_count = 0
-                elif col_count < expected_columns:
-                    # Ligne incomplète : continuer à accumuler
-                    # Ne pas écrire encore, attendre la ligne suivante
-                    continue
-                else:
-                    # Plus de colonnes que prévu : problème, écrire quand même
-                    # (peut-être un champ avec des délimiteurs ou une erreur)
-                    outfile.write(current_buffer)
-                    lines_written += 1
-                    if original_line_count > 1:
-                        lines_corrected += 1
-                    current_buffer = ""
-                    original_line_count = 0
 
                 if show_progress and lines_written % chunk_size == 0:
                     logger.debug(f"Traité {lines_written:,} lignes écrites, {lines_corrected:,} corrigées...")
