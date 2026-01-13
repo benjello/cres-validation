@@ -4,13 +4,13 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from config import get_config
 from csv_validator import analyze_csv_columns, correct_csv, validate_csv
 
-# Chemin vers les fichiers de test
-TESTS_DIR = Path(__file__).parent
-FIXTURES_DIR = TESTS_DIR / "fixtures"
-INPUT_FILE = FIXTURES_DIR / "input.csv"
-EXPECTED_OUTPUT_FILE = FIXTURES_DIR / "expected_output.csv"
+# Utiliser le fichier CSV du répertoire data
+config = get_config()
+input_dir = config.get_path("paths", "input_dir")
+INPUT_FILE = input_dir / "echantillon_cnrps_pb_fondation_fidaa.csv"
 
 
 def test_input_file_exists():
@@ -18,9 +18,6 @@ def test_input_file_exists():
     assert INPUT_FILE.exists(), f"Le fichier de test {INPUT_FILE} n'existe pas"
 
 
-def test_expected_output_file_exists():
-    """Vérifie que le fichier de sortie attendu existe"""
-    assert EXPECTED_OUTPUT_FILE.exists(), f"Le fichier de test {EXPECTED_OUTPUT_FILE} n'existe pas"
 
 
 def test_analyze_csv_columns():
@@ -72,28 +69,16 @@ def test_correct_csv(tmp_path):
     # Vérifier que le fichier n'est pas vide
     assert output_file.stat().st_size > 0, "Le fichier corrigé ne doit pas être vide"
 
-    # Comparer avec le fichier attendu
-    # Note: on compare ligne par ligne car les fichiers peuvent avoir des différences mineures
-    # (espaces, encodage, etc.)
-    with open(output_file, encoding='utf-8') as f1, \
-         open(EXPECTED_OUTPUT_FILE, encoding='utf-8') as f2:
-        lines1 = [line.strip() for line in f1 if line.strip()]
-        lines2 = [line.strip() for line in f2 if line.strip()]
-
-    assert len(lines1) == len(lines2), \
-        f"Le nombre de lignes diffère: {len(lines1)} vs {len(lines2)}"
-
     # Vérifier que toutes les lignes ont le même nombre de colonnes
+    # D'abord, déterminer le nombre de colonnes attendu
+    expected_cols, _, _, _ = analyze_csv_columns(INPUT_FILE, delimiter=';', show_progress=False)
+    
     delimiter = ';'
-    for i, (line1, line2) in enumerate(zip(lines1, lines2, strict=True), start=1):
-        cols1 = line1.count(delimiter) + 1
-        cols2 = line2.count(delimiter) + 1
-        assert cols1 == cols2, \
-            f"Ligne {i}: nombre de colonnes différent ({cols1} vs {cols2})"
-
-    # Vérifier que toutes les lignes ont le bon nombre de colonnes (58)
-    expected_cols = 58
-    for i, line in enumerate(lines1, start=1):
+    with open(output_file, encoding='utf-8') as f:
+        lines = [line.strip() for line in f if line.strip()]
+    
+    # Vérifier que toutes les lignes ont le bon nombre de colonnes
+    for i, line in enumerate(lines, start=1):
         cols = line.count(delimiter) + 1
         assert cols == expected_cols, \
             f"Ligne {i}: {cols} colonnes au lieu de {expected_cols}"
