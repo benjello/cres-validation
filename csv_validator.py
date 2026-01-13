@@ -372,6 +372,10 @@ def correct_csv(
                                 lines_corrected += 1
                             current_buffer = ""
                             original_line_count = 0
+                            # Maintenant, ajouter la ligne actuelle au buffer vide
+                            current_buffer = line
+                            original_line_count = 1
+                            continue
                         elif col_count > expected_columns:
                             # Plus de colonnes que prévu : problème, écrire quand même
                             outfile.write(current_buffer)
@@ -380,8 +384,13 @@ def correct_csv(
                                 lines_corrected += 1
                             current_buffer = ""
                             original_line_count = 0
+                            # Maintenant, ajouter la ligne actuelle au buffer vide
+                            current_buffer = line
+                            original_line_count = 1
+                            continue
 
-                # Maintenant, ajouter la ligne actuelle au buffer (qui est maintenant vide si elle était complète)
+                # Si on arrive ici, le buffer est vide ou incomplet
+                # Ajouter la ligne actuelle au buffer
                 if current_buffer:
                     # Buffer incomplet : fusionner avec la ligne suivante
                     current_buffer = current_buffer.rstrip('\n\r') + ' ' + line
