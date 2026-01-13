@@ -60,7 +60,7 @@ uv run pytest tests/test_performance.py -v
 uv run pytest --cov=cres_validation.columns_number_validator tests/
 ```
 
-**Note** : Les tests de performance génèrent des fichiers volumineux (1M lignes) à la volée, ils ne sont pas stockés dans le repository.
+**Note** : Les tests de performance génèrent des fichiers volumineux (1M lignes) à la volée, ils ne sont pas stockés dans le repository. Les tests 1M lignes mesurent également l'empreinte mémoire avec `psutil` pour vérifier que la RAM reste raisonnable (< 2 GB).
 
 ### Linting et formatage
 

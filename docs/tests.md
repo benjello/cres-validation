@@ -83,16 +83,26 @@ Test que la correction réduit le nombre de lignes :
 - Vérifie que le fichier corrigé a moins ou autant de lignes
 - Vérifie que des lignes ont été fusionnées
 
+#### `test_log_file_created_and_has_content`
+
+Test de validation du fichier de log :
+
+- Vérifie que le fichier de log est créé
+- Vérifie que le fichier n'est pas vide
+- Vérifie le format du nom du fichier (nom-date-heure.log)
+- Vérifie que le fichier contient des messages formatés
+- Vérifie que le fichier contient au moins un niveau de log (INFO, DEBUG, WARNING, ERROR)
+
 ### Tests de conversion (`test_convert_txt_to_csv.py`)
 
 Tests pour la conversion de fichiers TXT vers CSV, incluant la détection d'encodage et le remplacement des délimiteurs.
 
 ### Tests de performance (`test_performance.py`)
 
-
-Tests pour mesurer les performances sur des fichiers de différentes tailles :
+Tests pour mesurer les performances sur des fichiers de différentes tailles, incluant la mesure du temps d'exécution et de l'empreinte mémoire.
 
 #### Tests rapides (1k lignes)
+
 - `test_performance_convert_1k` : Conversion TXT → CSV
 - `test_performance_analyze_1k` : Analyse des colonnes
 - `test_performance_correct_1k` : Correction CSV
@@ -100,8 +110,26 @@ Tests pour mesurer les performances sur des fichiers de différentes tailles :
 #### Tests lents (1M lignes) - marqués `@pytest.mark.slow`
 
 - `test_performance_convert_1m` : Conversion TXT → CSV
-- `test_performance_analyze_1m` : Analyse des colonnes
-- `test_performance_correct_1m` : Correction CSV
+- `test_performance_analyze_1m` : Analyse des colonnes avec mesure de RAM
+- `test_performance_correct_1m` : Correction CSV avec mesure de RAM
+
+**Fonctionnalités de mesure :**
+
+- **Temps d'exécution** : Mesuré pour toutes les opérations
+- **Empreinte mémoire (RAM)** : Mesurée pour les tests 1M lignes avec `psutil`
+  - RAM utilisée (pic pendant l'opération)
+  - RAM totale du processus
+  - Vérification que la RAM reste < 2 GB pour 1M lignes
+
+**Fonctions helper :**
+
+Les tests utilisent des fonctions helper pour mutualiser le code :
+
+- `prepare_test_csv()` : Prépare un fichier CSV de test (génération + conversion)
+- `count_lines()` : Compte les lignes d'un fichier
+- `format_time()` : Formate le temps en unité appropriée
+- `format_memory()` : Formate la mémoire en unité appropriée
+- `get_memory_usage()` : Mesure la mémoire résidente (RSS) du processus
 
 **Note** : Les fichiers de test volumineux (1k et 1M lignes) sont générés à la volée à partir du fichier source, ils ne sont pas stockés dans le repository.
 
@@ -162,6 +190,7 @@ La CI est optimisée pour être rapide et fiable :
 
 2. **Tests de performance lents** : Job séparé avec `continue-on-error`
    - 3 tests lents (1M lignes) exécutés mais non bloquants
+   - Mesure du temps d'exécution et de l'empreinte mémoire
    - Permet de détecter les régressions de performance sans bloquer la CI
 
 ### Exécution locale
