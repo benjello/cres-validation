@@ -13,8 +13,8 @@ tests/
 │   │   ├── source/          # Fichiers .txt originaux (avec espaces dans les noms)
 │   │   └── csv/             # Fichiers .csv convertis (espaces remplacés par _)
 │   ├── output/              # Répertoire pour les fichiers de sortie
-│   ├── logs/                # Répertoire pour les logs
-│   └── expected_output.csv  # Fichier CSV attendu après correction
+│   │   └── expected_output.csv  # Fichier CSV attendu après correction
+│   └── logs/                # Répertoire pour les logs
 └── README.md                # Ce fichier
 ```
 
@@ -22,8 +22,8 @@ tests/
 
 - `fixtures/input/source/` : Répertoire contenant les fichiers .txt originaux (avec espaces dans les noms)
 - `fixtures/input/csv/` : Répertoire contenant les fichiers .csv convertis (utilisés pour les tests)
-- `fixtures/expected_output.csv` : Fichier CSV attendu après correction, avec toutes les lignes ayant le bon nombre de colonnes
-- `fixtures/output/` : Répertoire pour les fichiers de sortie générés par les tests
+- `fixtures/output/` : Répertoire pour les fichiers de sortie
+  - `expected_output.csv` : Fichier CSV attendu après correction, avec toutes les lignes ayant le bon nombre de colonnes
 - `fixtures/logs/` : Répertoire pour les logs générés par les tests
 
 ## Exécution des tests
