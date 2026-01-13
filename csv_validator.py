@@ -347,11 +347,11 @@ def correct_csv(
              open(output_path, 'w', encoding=enc, newline='', buffering=8192*16) as outfile:
 
             for _line_num, line in enumerate(infile, start=1):
-                # Détecter et préserver le header (première ligne qui commence par ;matricul ou similaire)
+                # Détecter et préserver le header (première ligne qui commence par ,matricul ou similaire)
                 if is_first_line:
                     stripped_first = line.rstrip('\n\r')
-                    # Si la première ligne ressemble à un header (commence par ; et contient des noms de colonnes)
-                    if stripped_first.startswith(';') and ('matricul' in stripped_first.lower() or 'cin' in stripped_first.lower()):
+                    # Si la première ligne ressemble à un header (commence par , et contient des noms de colonnes)
+                    if stripped_first.startswith(',') and ('matricul' in stripped_first.lower() or 'cin' in stripped_first.lower()):
                         # Écrire le header tel quel
                         outfile.write(line)
                         lines_written += 1
