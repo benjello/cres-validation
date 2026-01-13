@@ -273,7 +273,7 @@ def save_problematic_lines(
 def correct_csv(
     csv_path: Path,
     output_path: Path,
-    delimiter: str = ';',
+    delimiter: str = ',',
     encoding: str = 'utf-8',
     show_progress: bool = True,
     chunk_size: int = 100000,

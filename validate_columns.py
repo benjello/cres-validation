@@ -8,7 +8,7 @@ from pandera.errors import SchemaError
 import colums_validator
 
 
-def validate_csv_columns(csv_path: Path, delimiter: str = ';', table_name: str = 'individu',
+def validate_csv_columns(csv_path: Path, delimiter: str = ',', table_name: str = 'individu',
                          column_mapping: dict = None):
     """
     Valide les colonnes d'un CSV avec les schémas Pandera.
@@ -171,5 +171,5 @@ if __name__ == "__main__":
         print(f"❌ Fichier introuvable: {csv_path}")
         sys.exit(1)
 
-    success = validate_csv_columns(csv_path, delimiter=';', table_name=table_name, column_mapping=column_mapping)
+    success = validate_csv_columns(csv_path, delimiter=',', table_name=table_name, column_mapping=column_mapping)
     sys.exit(0 if success else 1)

@@ -115,7 +115,7 @@ def main():
         logger.info("=" * 60)
 
         # Récupérer le délimiteur depuis la config (par défaut ";")
-        delimiter = config.get("csv", "delimiter", fallback=";")
+        delimiter = config.get("csv", "delimiter", fallback=",")
         logger.debug(f"Délimiteur utilisé: '{delimiter}'")
 
         # Traiter chaque fichier CSV
