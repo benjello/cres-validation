@@ -1,4 +1,4 @@
-"""Tests de performance pour mesurer le temps d'exécution"""
+"""Tests de performance pour mesurer le temps d'exécution et l'empreinte mémoire"""
 
 import logging
 import time
@@ -8,6 +8,15 @@ import pytest
 
 from cres_validation.columns_number_validator import analyze_csv_columns, correct_csv
 from cres_validation.convert_txt_to_csv import convert_txt_to_csv
+
+try:
+    import os
+
+    import psutil
+
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
 
 # Chemin vers les fichiers de test dans fixtures
 TESTS_DIR = Path(__file__).parent
@@ -45,6 +54,23 @@ def format_time(seconds: float) -> str:
         minutes = int(seconds // 60)
         secs = seconds % 60
         return f"{minutes}m {secs:.2f}s"
+
+
+def format_memory(bytes_value: float) -> str:
+    """Formate la mémoire en unité appropriée"""
+    for unit in ["B", "KB", "MB", "GB"]:
+        if bytes_value < 1024.0:
+            return f"{bytes_value:.2f} {unit}"
+        bytes_value /= 1024.0
+    return f"{bytes_value:.2f} TB"
+
+
+def get_memory_usage() -> float:
+    """Retourne l'utilisation mémoire actuelle du processus en bytes"""
+    if not PSUTIL_AVAILABLE:
+        return 0.0
+    process = psutil.Process(os.getpid())
+    return process.memory_info().rss  # Resident Set Size (mémoire physique utilisée)
 
 
 def generate_test_file(num_lines: int, output_path: Path, source_file: Path = SOURCE_FILE) -> None:
@@ -267,9 +293,12 @@ def test_performance_convert_1m(performance_logger, tmp_path):
 
 @pytest.mark.slow
 def test_performance_analyze_1m(performance_logger, tmp_path):
-    """Test de performance : analyse CSV pour 1 million de lignes"""
+    """Test de performance : analyse CSV pour 1 million de lignes avec mesure de RAM"""
     if not SOURCE_FILE.exists():
         pytest.skip(f"Fichier source non trouvé: {SOURCE_FILE}")
+
+    if not PSUTIL_AVAILABLE:
+        pytest.skip("psutil n'est pas disponible, impossible de mesurer la RAM")
 
     # Générer le fichier de test à la volée
     test_file = tmp_path / "test_1m.txt"
@@ -292,6 +321,8 @@ def test_performance_analyze_1m(performance_logger, tmp_path):
     convert_txt_to_csv(test_source_dir, output_dir, logger=performance_logger)
     csv_file = output_dir / (test_file_in_dir.stem.replace(" ", "_") + ".csv")
 
+    # Mesurer la mémoire avant l'analyse
+    memory_before = get_memory_usage()
     start_time = time.time()
 
     expected_cols, problematic_lines, column_counter, _ = analyze_csv_columns(
@@ -299,6 +330,9 @@ def test_performance_analyze_1m(performance_logger, tmp_path):
     )
 
     elapsed = time.time() - start_time
+    # Mesurer la mémoire après l'analyse (pic de mémoire)
+    memory_after = get_memory_usage()
+    memory_peak = memory_after - memory_before
 
     total_lines = sum(column_counter.values())
 
@@ -307,10 +341,17 @@ def test_performance_analyze_1m(performance_logger, tmp_path):
     print(f"   - Lignes analysées: {total_lines:,}")
     print(f"   - Lignes problématiques: {len(problematic_lines):,}")
     print(f"   - Vitesse: {total_lines / elapsed:,.0f} lignes/seconde")
+    print(f"   - RAM utilisée: {format_memory(memory_peak)}")
+    print(f"   - RAM totale: {format_memory(memory_after)}")
 
     # Pour 1M lignes, on accepte jusqu'à 2 minutes
     assert elapsed < 120, (
         f"L'analyse devrait prendre moins de 2 minutes, mais a pris {format_time(elapsed)}"
+    )
+
+    # Vérifier que la mémoire utilisée est raisonnable (< 2 GB pour 1M lignes)
+    assert memory_peak < 2 * 1024 * 1024 * 1024, (
+        f"L'empreinte mémoire devrait être < 2 GB, mais était {format_memory(memory_peak)}"
     )
 
 
@@ -343,6 +384,11 @@ def test_performance_correct_1m(performance_logger, tmp_path):
 
     corrected_file = tmp_path / "corrected_1m.csv"
 
+    if not PSUTIL_AVAILABLE:
+        pytest.skip("psutil n'est pas disponible, impossible de mesurer la RAM")
+
+    # Mesurer la mémoire avant la correction
+    memory_before = get_memory_usage()
     start_time = time.time()
 
     correct_csv(
@@ -350,6 +396,9 @@ def test_performance_correct_1m(performance_logger, tmp_path):
     )
 
     elapsed = time.time() - start_time
+    # Mesurer la mémoire après la correction (pic de mémoire)
+    memory_after = get_memory_usage()
+    memory_peak = memory_after - memory_before
 
     # Compter les lignes dans le fichier corrigé
     with open(corrected_file, encoding="utf-8") as f:
@@ -359,8 +408,15 @@ def test_performance_correct_1m(performance_logger, tmp_path):
     print(f"   - Temps: {format_time(elapsed)}")
     print(f"   - Lignes corrigées: {corrected_lines:,}")
     print(f"   - Vitesse: {corrected_lines / elapsed:,.0f} lignes/seconde")
+    print(f"   - RAM utilisée: {format_memory(memory_peak)}")
+    print(f"   - RAM totale: {format_memory(memory_after)}")
 
     # Pour 1M lignes, on accepte jusqu'à 5 minutes
     assert elapsed < 300, (
         f"La correction devrait prendre moins de 5 minutes, mais a pris {format_time(elapsed)}"
+    )
+
+    # Vérifier que la mémoire utilisée est raisonnable (< 2 GB pour 1M lignes)
+    assert memory_peak < 2 * 1024 * 1024 * 1024, (
+        f"L'empreinte mémoire devrait être < 2 GB, mais était {format_memory(memory_peak)}"
     )

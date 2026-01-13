@@ -21,6 +21,7 @@ dev = [
     "mkdocs-material>=9.0.0",
     "mkdocs-git-revision-date-localized-plugin>=1.2.0",
     "ruff>=0.14.0",
+    "psutil>=5.9.0",
 ]
 
 [dependency-groups]
