@@ -7,6 +7,20 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-01-14
+
+### Ajouté
+- Unification des logs par fichier source : un seul fichier de log par fichier TXT source contenant tous les logs (conversion, validation colonnes, validation Pandera)
+- Configuration partagée des loggers dans `tests/conftest.py` avec fixture `setup_unified_logger`
+- Test `test_validate_csv_columns` pour valider les colonnes avec Pandera dans les tests
+
+### Modifié
+- Amélioration du filtre `FileNameFilter` pour accepter tous les messages de validation Pandera (y compris les messages DEBUG)
+- Configuration des loggers `cres-validation`, `cres-validation.convert` et `cres-validation.pandera` dans la fixture de test
+
+### Supprimé
+- Suppression des fixtures dupliquées `setup_test_logger` et `setup_convert_logger` dans les fichiers de test individuels
+
 ## [0.2.1] - 2026-01-14
 
 ### Ajouté
@@ -53,7 +67,8 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 ### Modifié
 - Structure du projet organisée en package Python (`cres_validation/`)
 
-[Unreleased]: https://github.com/benjello/cres-validation/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/benjello/cres-validation/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/benjello/cres-validation/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/benjello/cres-validation/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/benjello/cres-validation/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/benjello/cres-validation/releases/tag/v0.1.0
