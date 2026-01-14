@@ -36,7 +36,7 @@ Vous pouvez aussi créer un fichier `config.ini` dans le répertoire du projet c
 ### Validation
 
 ```bash
-# Valider les fichiers CSV
+# Valider les fichiers TXT (conversion automatique en CSV)
 uv run python main.py
 
 # Mode verbeux
@@ -49,7 +49,7 @@ uv run python main.py -vv
 ### Correction
 
 ```bash
-# Corriger les fichiers CSV
+# Corriger les fichiers TXT (conversion automatique en CSV)
 uv run python main.py --correct
 
 # Avec verbosité

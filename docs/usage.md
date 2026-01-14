@@ -4,7 +4,7 @@
 
 ### Validation
 
-Valider les fichiers CSV dans le répertoire d'entrée :
+Valider les fichiers TXT dans le répertoire d'entrée (conversion automatique en CSV) :
 
 ```bash
 uv run python main.py
@@ -12,7 +12,7 @@ uv run python main.py
 
 ### Correction
 
-Corriger les fichiers CSV en fusionnant les lignes incomplètes :
+Corriger les fichiers TXT en fusionnant les lignes incomplètes (conversion automatique en CSV) :
 
 ```bash
 uv run python main.py --correct
@@ -46,7 +46,9 @@ uv run python main.py
 Sortie :
 
 ```text
-INFO - 1 fichier(s) CSV trouvé(s)
+INFO - 1 fichier(s) TXT trouvé(s)
+INFO - Conversion: data.txt → data.csv
+INFO - 1 fichier(s) TXT converti(s) en CSV
 INFO - Analyse du fichier: data.csv
 INFO - Nombre de colonnes attendu: 58
 WARNING - 5 ligne(s) avec un nombre de colonnes incorrect
@@ -110,16 +112,19 @@ Tous les messages (tous niveaux) sont écrits dans le fichier de log, même si l
 
 ## Traitement de plusieurs fichiers
 
-Le script traite automatiquement tous les fichiers `.csv` dans le répertoire `input_dir` :
+Le script traite automatiquement tous les fichiers `.txt` dans le répertoire `input_dir`. Les fichiers TXT sont automatiquement convertis en CSV avant validation/correction :
 
 ```text
 input_dir/
-├── fichier1.csv
-├── fichier2.csv
-└── fichier3.csv
+├── fichier1.txt
+├── fichier2.txt
+└── fichier3.txt
 ```
 
-Chaque fichier sera validé ou corrigé selon le mode choisi.
+Chaque fichier TXT sera :
+1. Converti automatiquement en CSV (remplacement `;` → `,`)
+2. Validé ou corrigé selon le mode choisi
+3. Les fichiers CSV temporaires sont nettoyés automatiquement
 
 ## Résultats de la correction
 
