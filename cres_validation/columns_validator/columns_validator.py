@@ -1,5 +1,6 @@
 """Validation des colonnes avec schéma Pandera"""
 
+import logging
 from pathlib import Path
 
 import pandas as pd
@@ -12,9 +13,10 @@ from cres_validation.columns_validator.schemas import schemas
 
 def validate_csv_columns(
     csv_path: Path,
-    delimiter: str = ",",
+    delimiter: str = ";",
     schema_name: str | None = None,
     schema_to_use: pa.DataFrameSchema | None = None,
+    logger: logging.Logger | None = None,
 ) -> bool:
     """
     Valide les colonnes d'un CSV avec un schéma Pandera en utilisant le header pour mapper les colonnes.
@@ -38,13 +40,21 @@ def validate_csv_columns(
         # Par défaut, utiliser le schéma "cnrps"
         schema_to_use = schemas["cnrps"]
 
-    print(f"Validation du fichier: {csv_path}")
-    print(f"Délimiteur: '{delimiter}'")
-    print("-" * 60)
+    if logger is None:
+        logger = logging.getLogger("cres-validation.pandera")
+        if not logger.handlers:
+            handler = logging.StreamHandler()
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+
+    logger.info(f"Validation du fichier: {csv_path}")
+    logger.debug(f"Délimiteur: '{delimiter}'")
+    logger.debug("-" * 60)
 
     try:
         # Lire le CSV avec header pour obtenir les noms de colonnes
-        print("Lecture du fichier CSV...")
+        logger.debug("Lecture du fichier CSV...")
         df_with_header = pd.read_csv(
             csv_path, delimiter=delimiter, dtype=str, keep_default_na=False, nrows=1
         )
@@ -62,23 +72,23 @@ def validate_csv_columns(
             df = pd.read_csv(
                 csv_path, delimiter=delimiter, dtype=str, keep_default_na=False, header=0
             )
-            print(f"Header détecté: {len(df.columns)} colonnes")
-            print(f"  Colonnes: {', '.join(df.columns[:5].tolist())}...")
+            logger.debug(f"Header détecté: {len(df.columns)} colonnes")
+            logger.debug(f"  Colonnes: {', '.join(df.columns[:5].tolist())}...")
         else:
             # Lire sans header
             df = pd.read_csv(
                 csv_path, delimiter=delimiter, dtype=str, keep_default_na=False, header=None
             )
-            print(f"Aucun header détecté: {len(df.columns)} colonnes")
+            logger.debug(f"Aucun header détecté: {len(df.columns)} colonnes")
 
-        print(f"Nombre de lignes: {len(df)}")
+        logger.debug(f"Nombre de lignes: {len(df)}")
 
         if len(df) == 0:
-            print("❌ Aucune donnée à valider")
+            logger.error("Aucune donnée à valider")
             return False
 
         # Préparer les données pour la validation
-        print("\nPréparation des données...")
+        logger.debug("Préparation des données...")
 
         # Créer un DataFrame avec les colonnes nommées selon le schéma
         df_mapped = pd.DataFrame()
@@ -90,20 +100,20 @@ def validate_csv_columns(
         for col_name in schema_columns:
             if col_name in df.columns:
                 df_mapped[col_name] = df[col_name]
-                print(f"  {col_name} <- colonne '{col_name}'")
+                logger.debug(f"  {col_name} <- colonne '{col_name}'")
             else:
                 missing_columns.append(col_name)
-                print(f"  ⚠️  Colonne '{col_name}': absente du CSV")
+                logger.debug(f"  Colonne '{col_name}': absente du CSV")
 
         if missing_columns:
-            print(f"\n❌ Colonnes manquantes: {', '.join(missing_columns)}")
+            logger.error(f"Colonnes manquantes: {', '.join(missing_columns)}")
             return False
 
         # Conversions spéciales avant validation
         date_columns = ["date_naissance", "date_affiliation", "date_recrut"]
         for date_col in date_columns:
             if date_col in df_mapped.columns:
-                print(f"  Conversion des dates '{date_col}': JJ/MM/AA -> JJ/MM/AAAA")
+                logger.debug(f"  Conversion des dates '{date_col}': JJ/MM/AA -> JJ/MM/AAAA")
                 df_mapped[date_col] = df_mapped[date_col].apply(convert_date_jjmmaa_to_jjmmaaaa)
 
         # Filtrer les lignes où date_naissance ne ressemble pas à une date (colonne principale)
@@ -111,11 +121,11 @@ def validate_csv_columns(
             date_mask = df_mapped["date_naissance"].str.contains(r"\d{1,2}/\d{1,2}/\d{4}", na=False)
             non_date_count = (~date_mask).sum()
             if non_date_count > 0:
-                print(f"  ⚠️  {non_date_count} ligne(s) avec date_naissance invalide ignorée(s)")
+                logger.warning(f"{non_date_count} ligne(s) avec date_naissance invalide ignorée(s)")
             df_mapped = df_mapped[date_mask].reset_index(drop=True)
 
         if len(df_mapped) == 0:
-            print("❌ Aucune ligne valide après filtrage")
+            logger.error("Aucune ligne valide après filtrage")
             return False
 
         # Conversions de types pour les colonnes numériques
@@ -126,7 +136,7 @@ def validate_csv_columns(
                 df_mapped[col_name] = pd.to_numeric(df_mapped[col_name], errors="coerce").astype("Int64")
                 null_count = df_mapped[col_name].isna().sum()
                 if null_count > 0:
-                    print(f"  ⚠️  {null_count} valeur(s) null dans '{col_name}', remplacée(s) par 0")
+                    logger.warning(f"{null_count} valeur(s) null dans '{col_name}', remplacée(s) par 0")
                     df_mapped[col_name] = df_mapped[col_name].fillna(0).astype(int)
                 else:
                     df_mapped[col_name] = df_mapped[col_name].astype(int)
@@ -146,24 +156,21 @@ def validate_csv_columns(
             if col_name in df_mapped.columns:
                 df_mapped[col_name] = pd.to_numeric(df_mapped[col_name], errors="coerce").astype("Int64")
 
-        print(f"Lignes à valider: {len(df_mapped)}")
+        logger.debug(f"Lignes à valider: {len(df_mapped)}")
 
         # Valider avec le schéma Pandera
-        print("\nValidation avec le schéma Pandera...")
+        logger.debug("Validation avec le schéma Pandera...")
         try:
             schema_to_use.validate(df_mapped)
-            print("✅ Validation réussie ! Toutes les colonnes sont valides.")
+            logger.info("Validation Pandera réussie : toutes les colonnes sont valides")
             return True
         except SchemaError as e:
-            print("❌ Erreur de validation:")
-            print(str(e))
+            logger.error("Erreur de validation Pandera:")
+            logger.error(str(e))
             return False
 
     except Exception as e:
-        print(f"❌ Erreur lors de la lecture/validation: {e}")
-        import traceback
-
-        traceback.print_exc()
+        logger.error(f"Erreur lors de la lecture/validation: {e}", exc_info=True)
         return False
 
 

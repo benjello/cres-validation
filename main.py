@@ -6,6 +6,7 @@ from pathlib import Path
 
 from cres_validation import get_config
 from cres_validation.columns_number_validator import correct_csv, csv_validate_columns_number
+from cres_validation.columns_validator import validate_csv_columns
 from cres_validation.convert_to_parquet import convert_csv_to_parquet
 from cres_validation.convert_txt_to_csv import convert_txt_file_to_csv
 
@@ -201,6 +202,22 @@ def main():
                     )
                     logger.info(f"✅ Fichier CSV corrigé sauvegardé: {csv_output_file.name}")
 
+                    # Valider les colonnes avec Pandera (types, formats, dates)
+                    logger.info("Validation des colonnes avec Pandera...")
+                    try:
+                        validation_success = validate_csv_columns(
+                            csv_output_file,
+                            delimiter=delimiter,
+                            schema_name="cnrps",
+                            logger=logger,
+                        )
+                        if validation_success:
+                            logger.info("✅ Validation Pandera réussie : toutes les colonnes sont valides")
+                        else:
+                            logger.warning("⚠️  Validation Pandera échouée : certaines colonnes ne respectent pas le schéma")
+                    except Exception as e:
+                        logger.warning(f"⚠️  Erreur lors de la validation Pandera: {e}", exc_info=args.verbose >= 2)
+
                     # Convertir en Parquet
                     parquet_output_file = parquet_output_dir / f"corrected_{source_name}.parquet"
                     logger.debug(f"Fichier Parquet de sortie: {parquet_output_file}")
@@ -219,6 +236,22 @@ def main():
                         show_progress=args.verbose >= 1,
                         logger=logger,
                     )
+
+                    # Valider aussi les colonnes avec Pandera (types, formats, dates)
+                    logger.info("Validation des colonnes avec Pandera...")
+                    try:
+                        validation_success = validate_csv_columns(
+                            csv_file,
+                            delimiter=delimiter,
+                            schema_name="cnrps",
+                            logger=logger,
+                        )
+                        if validation_success:
+                            logger.info("✅ Validation Pandera réussie : toutes les colonnes sont valides")
+                        else:
+                            logger.warning("⚠️  Validation Pandera échouée : certaines colonnes ne respectent pas le schéma")
+                    except Exception as e:
+                        logger.warning(f"⚠️  Erreur lors de la validation Pandera: {e}", exc_info=args.verbose >= 2)
             except Exception as e:
                 logger.error(
                     f"Erreur lors du traitement de {csv_file.name}: {e}", exc_info=args.verbose >= 2
