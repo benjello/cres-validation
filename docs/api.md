@@ -204,6 +204,8 @@ def get_config(config_path: Optional[Path] = None) -> ConfigReader
 
 Valide les colonnes d'un CSV avec les schémas Pandera.
 
+**Note** : Ce module utilise l'API recommandée de Pandera (`pandera.pandas`) pour éviter les warnings de dépréciation.
+
 ```python
 def validate_csv_columns(
     csv_path: Path,
@@ -225,6 +227,17 @@ success = validate_csv_columns(
     table_name="individu"
 )
 ```
+
+## Module `cres_validation.colums_validator`
+
+Ce module définit les schémas Pandera pour la validation des colonnes.
+
+**Note** : Utilise `import pandera.pandas as pa` pour l'API recommandée de Pandera.
+
+### Schémas disponibles
+
+- `schema_by_table["individu"]` : Schéma pour la table individu
+- `schema_by_table["menage"]` : Schéma pour la table ménage
 
 ## Module `cres_validation.convert_txt_to_csv`
 

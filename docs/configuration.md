@@ -31,18 +31,18 @@ delimiter = ,
 
 ### Section `[paths]`
 
-| Option      | Description                                    | Exemple                  |
-|-------------|------------------------------------------------|--------------------------|
-| `input_dir` | Répertoire contenant les fichiers CSV à traiter | `~/data/cres/input`      |
-| `output_dir` | Répertoire où écrire les fichiers corrigés     | `~/data/cres/output`     |
-| `log_dir`   | Répertoire pour les fichiers de log            | `~/data/cres/logs`       |
-| `temp_dir`  | Répertoire temporaire                          | `/tmp/cres-validation`   |
+| Option       | Description                                      | Exemple                |
+|--------------|--------------------------------------------------|------------------------|
+| `input_dir`  | Répertoire contenant les fichiers CSV à traiter  | `~/data/cres/input`    |
+| `output_dir` | Répertoire où écrire les fichiers corrigés       | `~/data/cres/output`   |
+| `log_dir`    | Répertoire pour les fichiers de log              | `~/data/cres/logs`     |
+| `temp_dir`   | Répertoire temporaire                            | `/tmp/cres-validation` |
 
 ### Section `[csv]`
 
-| Option      | Description                          | Valeur par défaut |
-|-------------|--------------------------------------|-------------------|
-| `delimiter` | Délimiteur utilisé dans les fichiers CSV | `,`               |
+| Option      | Description                                | Valeur par défaut |
+|-------------|--------------------------------------------|-------------------|
+| `delimiter` | Délimiteur utilisé dans les fichiers CSV   | `,`               |
 
 ## Chemins relatifs et absolus
 

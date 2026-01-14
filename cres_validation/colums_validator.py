@@ -1,7 +1,7 @@
 from functools import partial
 
 import pandas as pd
-from pandera import Check, Column, DataFrameSchema
+import pandera.pandas as pa
 
 DATE_MIN = 1900
 DATE_MAX = 2025
@@ -74,33 +74,33 @@ vectorized_date_validator_aaaammjj = partial(vectorized_date_validator, date_for
 
 schema_by_table = {}
 
-schema_by_table["individu"] = DataFrameSchema(
+schema_by_table["individu"] = pa.DataFrameSchema(
     columns={
-        "date_naissance": Column(
+        "date_naissance": pa.Column(
             str,
-            Check(
+            pa.Check(
                 vectorized_date_validator_jjmmaaaa,
                 element_wise=False,  # Important: indique que la fonction traite toute la série
                 error="La colonne doit contenir des dates au format JJ/MM/AAAA valides",
             ),
         ),
-        "id_anonymized_chef": Column(str),
-        "id_anonymized_membre": Column(str),
-        "role_menage": Column(int, Check.isin(range(21))),
-        "lib": Column(str, Check.isin(["", "خطان", "خط واحد", "3 خطوط"])),
-        "sexe": Column(str, Check.isin(["Homme", "Femme"])),
+        "id_anonymized_chef": pa.Column(str),
+        "id_anonymized_membre": pa.Column(str),
+        "role_menage": pa.Column(int, pa.Check.isin(range(21))),
+        "lib": pa.Column(str, pa.Check.isin(["", "خطان", "خط واحد", "3 خطوط"])),
+        "sexe": pa.Column(str, pa.Check.isin(["Homme", "Femme"])),
     },
     unique=["id_anonymized_chef", "id_anonymized_membre"],
 )
 
-schema_by_table["menage"] = DataFrameSchema(
+schema_by_table["menage"] = pa.DataFrameSchema(
     columns={
-        "id_anonymized_chef": Column(str),
-        # 'id_gouv': Column(int),
-        # 'id_del':  Column(int),
-        "date_modif": Column(
+        "id_anonymized_chef": pa.Column(str),
+        # 'id_gouv': pa.Column(int),
+        # 'id_del':  pa.Column(int),
+        "date_modif": pa.Column(
             str,
-            Check(
+            pa.Check(
                 vectorized_date_validator_aaaammjj,
                 element_wise=False,  # Important: indique que la fonction traite toute la série
                 error="La colonne doit contenir des dates au format AAAA-MM-JJ valides",
