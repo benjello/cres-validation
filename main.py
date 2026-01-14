@@ -181,10 +181,7 @@ def main():
                             break
 
                     # Nommer le fichier de sortie basé sur le fichier TXT source
-                    if txt_source:
-                        source_name = txt_source.stem.replace(" ", "_")
-                    else:
-                        source_name = csv_file.stem
+                    source_name = txt_source.stem.replace(" ", "_") if txt_source else csv_file.stem
 
                     # Créer les répertoires de sortie
                     csv_output_dir = output_dir / "csv"
