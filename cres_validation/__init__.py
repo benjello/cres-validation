@@ -8,6 +8,7 @@ from cres_validation.columns_number_validator import (
     correct_csv,
     csv_validate_columns_number,
 )
+from cres_validation.columns_validator import validate_csv_columns
 from cres_validation.config import get_config
 from cres_validation.convert_to_parquet import convert_csv_to_parquet
 from cres_validation.convert_txt_to_csv import (
@@ -21,6 +22,7 @@ __all__ = [
     "analyze_csv_columns",
     "correct_csv",
     "csv_validate_columns_number",
+    "validate_csv_columns",
     "convert_txt_to_csv",
     "convert_txt_file_to_csv",
     "detect_encoding",
