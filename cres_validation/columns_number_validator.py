@@ -4,7 +4,7 @@ from collections import Counter
 from pathlib import Path
 
 
-def count_columns_in_line_fast(line: str, delimiter: str = ",") -> int:
+def count_columns_in_line_fast(line: str, delimiter: str = ";") -> int:
     """
     Compte rapidement le nombre de colonnes dans une ligne CSV.
     Version optimisée qui évite de créer un reader CSV pour chaque ligne.
@@ -33,7 +33,7 @@ def count_columns_in_line_fast(line: str, delimiter: str = ",") -> int:
 
 def analyze_csv_columns(
     csv_path: Path,
-    delimiter: str = ",",
+    delimiter: str = ";",
     encoding: str = "utf-8",
     use_most_frequent: bool = True,
     show_progress: bool = True,
@@ -197,7 +197,7 @@ def analyze_csv_columns(
 
 def validate_csv(
     csv_path: Path,
-    delimiter: str = ",",
+    delimiter: str = ";",
     encoding: str = "utf-8",
     show_progress: bool = True,
     max_problematic_display: int = 100,
@@ -295,7 +295,7 @@ def validate_csv(
 def save_problematic_lines(
     csv_path: Path,
     output_path: Path,
-    delimiter: str = ",",
+    delimiter: str = ";",
     encoding: str = "utf-8",
     logger: logging.Logger | None = None,
 ) -> None:
@@ -337,7 +337,7 @@ def save_problematic_lines(
 def correct_csv(
     csv_path: Path,
     output_path: Path,
-    delimiter: str = ",",
+    delimiter: str = ";",
     encoding: str = "utf-8",
     show_progress: bool = True,
     chunk_size: int = 100000,

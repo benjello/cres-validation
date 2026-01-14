@@ -13,9 +13,9 @@ TESTS_DIR = Path(__file__).parent
 FIXTURES_DIR = TESTS_DIR / "fixtures"
 INPUT_FILE = FIXTURES_DIR / "input" / "csv" / "echantillon_cnrps_pb_fondation_fidaa.csv"
 # Le fichier de sortie attendu suit le format: corrected_{nom_source}.csv
-EXPECTED_OUTPUT_FILE = FIXTURES_DIR / "output" / f"corrected_{INPUT_FILE.stem}.csv"
+EXPECTED_OUTPUT_FILE = FIXTURES_DIR / "output" / "csv" / f"corrected_{INPUT_FILE.stem}.csv"
 LOGS_DIR = FIXTURES_DIR / "logs"
-DELIMITER = ","
+DELIMITER = ";"
 
 
 @pytest.fixture(scope="session", autouse=True)

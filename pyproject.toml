@@ -8,6 +8,7 @@ dependencies = [
     "pandera>=0.28.1",
     "pandas>=2.0.0",
     "chardet>=5.0.0",
+    "pyarrow>=14.0.0",
 ]
 
 [build-system]

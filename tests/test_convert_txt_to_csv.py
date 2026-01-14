@@ -166,9 +166,8 @@ def test_convert_file_with_spaces(convert_logger):
         txt_content = txt_content.replace("\r\n", "\n").replace("\r", "\n")
         csv_content = csv_content.replace("\r\n", "\n").replace("\r", "\n")
 
-        # Remplacer les ; par , dans le contenu TXT pour la comparaison
-        # (car la conversion remplace ; par ,)
-        txt_content_normalized = txt_content.replace(";", ",")
+        # Le contenu TXT garde le délimiteur ; (pas de conversion)
+        txt_content_normalized = txt_content
 
         assert txt_content_normalized == csv_content, (
             "Le contenu du fichier CSV ne correspond pas au fichier TXT original (après conversion des délimiteurs)"

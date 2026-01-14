@@ -84,8 +84,7 @@ def convert_txt_file_to_csv(
         with open(txt_file, encoding=encoding) as infile:
             content = infile.read()
 
-        # Remplacer les délimiteurs ; par , (sans corriger les lignes incomplètes)
-        content = content.replace(";", ",")
+        # Garder le délimiteur ; (pas de conversion, car il peut y avoir des virgules dans les strings)
 
         # Créer le répertoire de destination s'il n'existe pas
         csv_file.parent.mkdir(parents=True, exist_ok=True)
@@ -164,8 +163,7 @@ def convert_txt_to_csv(
             with open(txt_file, encoding=encoding) as infile:
                 content = infile.read()
 
-            # Remplacer les délimiteurs ; par , (sans corriger les lignes incomplètes)
-            content = content.replace(";", ",")
+            # Garder le délimiteur ; (pas de conversion, car il peut y avoir des virgules dans les strings)
 
             # Écrire en UTF-8 dans le fichier CSV
             with open(csv_file, "w", encoding="utf-8") as outfile:

@@ -14,6 +14,7 @@ from cres_validation.convert_txt_to_csv import (
     convert_txt_to_csv,
     detect_encoding,
 )
+from cres_validation.convert_to_parquet import convert_csv_to_parquet
 
 __all__ = [
     "get_config",
@@ -23,4 +24,5 @@ __all__ = [
     "convert_txt_to_csv",
     "convert_txt_file_to_csv",
     "detect_encoding",
+    "convert_csv_to_parquet",
 ]
