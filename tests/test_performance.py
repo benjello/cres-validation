@@ -29,7 +29,7 @@ LOGS_DIR = FIXTURES_DIR / "logs"
 # Fichier source original (petit, stocké dans le repo)
 SOURCE_FILE = SOURCE_DIR / "echantillon cnrps pb fondation fidaa.txt"
 
-DELIMITER = ","
+DELIMITER = ";"
 
 
 @pytest.fixture

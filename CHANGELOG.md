@@ -7,6 +7,15 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-01-14
+
+### Ajouté
+- Conversion CSV → Parquet et test de conformité CSV/Parquet
+
+### Modifié
+- Délimiteur par défaut : `;` (pour éviter les virgules dans les champs)
+- Réorganisation des sorties de tests : `fixtures/output/csv/` et `fixtures/output/parquet/`
+
 ## [0.2.0] - 2026-01-13
 
 ### Ajouté
@@ -44,6 +53,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 ### Modifié
 - Structure du projet organisée en package Python (`cres_validation/`)
 
-[Unreleased]: https://github.com/benjello/cres-validation/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/benjello/cres-validation/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/benjello/cres-validation/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/benjello/cres-validation/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/benjello/cres-validation/releases/tag/v0.1.0

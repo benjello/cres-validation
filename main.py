@@ -6,6 +6,7 @@ from pathlib import Path
 
 from cres_validation import get_config
 from cres_validation.columns_number_validator import correct_csv, validate_csv
+from cres_validation.convert_to_parquet import convert_csv_to_parquet
 from cres_validation.convert_txt_to_csv import convert_txt_file_to_csv
 
 
@@ -131,6 +132,7 @@ def main():
 
         # Convertir les fichiers TXT en CSV temporaires
         converted_files = []
+        txt_to_csv_mapping = {}  # Mapping txt_file -> csv_file pour garder la trace
         # Créer un répertoire temporaire pour les CSV convertis
         temp_csv_dir = input_dir / "csv_temp"
         temp_csv_dir.mkdir(parents=True, exist_ok=True)
@@ -143,6 +145,7 @@ def main():
                 logger.info(f"Conversion: {txt_file.name} → {csv_file.name}")
                 convert_txt_file_to_csv(txt_file, csv_file, logger=logger)
                 converted_files.append(csv_file)
+                txt_to_csv_mapping[txt_file] = csv_file
             except Exception as e:
                 logger.error(
                     f"Erreur lors de la conversion de {txt_file.name}: {e}",
@@ -158,8 +161,8 @@ def main():
             logger.info("Mode correction activé")
         logger.info("=" * 60)
 
-        # Récupérer le délimiteur depuis la config (par défaut ",")
-        delimiter = config.get("csv", "delimiter", fallback=",")
+        # Délimiteur fixe : point-virgule (pour éviter les problèmes avec les virgules dans les strings)
+        delimiter = ";"
         logger.debug(f"Délimiteur utilisé: '{delimiter}'")
 
         # Traiter chaque fichier CSV converti
@@ -170,17 +173,44 @@ def main():
             try:
                 if args.correct:
                     # Mode correction : corriger le fichier
-                    # Nommer le fichier de sortie: corrected_{nom_sans_extension}.csv
-                    source_name = csv_file.stem  # Nom sans extension
-                    output_file = output_dir / f"corrected_{source_name}.csv"
-                    logger.debug(f"Fichier de sortie: {output_file}")
+                    # Trouver le fichier TXT source correspondant
+                    txt_source = None
+                    for txt_file, mapped_csv in txt_to_csv_mapping.items():
+                        if mapped_csv == csv_file:
+                            txt_source = txt_file
+                            break
+
+                    # Nommer le fichier de sortie basé sur le fichier TXT source
+                    source_name = txt_source.stem.replace(" ", "_") if txt_source else csv_file.stem
+
+                    # Créer les répertoires de sortie
+                    csv_output_dir = output_dir / "csv"
+                    parquet_output_dir = output_dir / "parquet"
+                    csv_output_dir.mkdir(parents=True, exist_ok=True)
+                    parquet_output_dir.mkdir(parents=True, exist_ok=True)
+
+                    # Sauvegarder le CSV corrigé
+                    csv_output_file = csv_output_dir / f"corrected_{source_name}.csv"
+                    logger.debug(f"Fichier CSV de sortie: {csv_output_file}")
                     correct_csv(
                         csv_file,
-                        output_file,
+                        csv_output_file,
                         delimiter=delimiter,
                         show_progress=args.verbose >= 1,
                         logger=logger,
                     )
+                    logger.info(f"✅ Fichier CSV corrigé sauvegardé: {csv_output_file.name}")
+
+                    # Convertir en Parquet
+                    parquet_output_file = parquet_output_dir / f"corrected_{source_name}.parquet"
+                    logger.debug(f"Fichier Parquet de sortie: {parquet_output_file}")
+                    convert_csv_to_parquet(
+                        csv_output_file,
+                        parquet_output_file,
+                        delimiter=delimiter,
+                        logger=logger,
+                    )
+                    logger.info(f"✅ Fichier Parquet sauvegardé: {parquet_output_file.name}")
                 else:
                     # Mode validation : valider le fichier
                     validate_csv(

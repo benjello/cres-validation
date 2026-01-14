@@ -21,10 +21,6 @@ input_dir = ~/data/cres/validation/input
 output_dir = ~/data/cres/validation/output
 log_dir = ~/data/cres/validation/logs
 temp_dir = /tmp/cres-validation
-
-[csv]
-# Délimiteur utilisé pour les fichiers CSV
-delimiter = ,
 ```
 
 ## Sections de configuration
@@ -38,11 +34,9 @@ delimiter = ,
 | `log_dir`    | Répertoire pour les fichiers de log              | `~/data/cres/logs`     |
 | `temp_dir`   | Répertoire temporaire                            | `/tmp/cres-validation` |
 
-### Section `[csv]`
+### Délimiteur CSV
 
-| Option      | Description                                | Valeur par défaut |
-|-------------|--------------------------------------------|-------------------|
-| `delimiter` | Délimiteur utilisé dans les fichiers CSV   | `,`               |
+Le délimiteur est **fixé à `;`** dans le code (pour éviter les problèmes lorsque des champs contiennent des virgules `,`).
 
 ## Chemins relatifs et absolus
 
@@ -60,9 +54,6 @@ input_dir = /mnt/data/cres/validation/input
 output_dir = /mnt/data/cres/validation/output
 log_dir = /var/log/cres-validation
 temp_dir = /tmp/cres-validation
-
-[csv]
-delimiter = ,
 ```
 
 ## Accès programmatique
@@ -75,6 +66,6 @@ config = get_config()
 # Récupérer un chemin
 input_dir = config.get_path("paths", "input_dir")
 
-# Récupérer une valeur
-delimiter = config.get("csv", "delimiter", fallback=",")
+# Délimiteur fixe
+delimiter = ";"
 ```
