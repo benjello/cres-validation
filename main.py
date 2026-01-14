@@ -6,6 +6,7 @@ from pathlib import Path
 
 from cres_validation import get_config
 from cres_validation.columns_number_validator import correct_csv, validate_csv
+from cres_validation.convert_txt_to_csv import convert_txt_file_to_csv
 
 
 def setup_logger(
@@ -118,26 +119,52 @@ def main():
             logger.warning(f"{input_dir} n'est pas un répertoire")
             return
 
-        # Trouver tous les fichiers CSV dans le répertoire
-        csv_files = sorted(input_dir.glob("*.csv"))
-        logger.debug(f"Recherche de fichiers CSV dans {input_dir}")
+        # Trouver tous les fichiers TXT dans le répertoire
+        txt_files = sorted(input_dir.glob("*.txt")) + sorted(input_dir.glob("*.TXT"))
+        logger.debug(f"Recherche de fichiers TXT dans {input_dir}")
 
-        if not csv_files:
-            logger.warning(f"Aucun fichier CSV trouvé dans {input_dir}")
+        if not txt_files:
+            logger.warning(f"Aucun fichier TXT trouvé dans {input_dir}")
             return
 
-        logger.info(f"{len(csv_files)} fichier(s) CSV trouvé(s)")
+        logger.info(f"{len(txt_files)} fichier(s) TXT trouvé(s)")
+
+        # Convertir les fichiers TXT en CSV temporaires
+        converted_files = []
+        # Créer un répertoire temporaire pour les CSV convertis
+        temp_csv_dir = input_dir / "csv_temp"
+        temp_csv_dir.mkdir(parents=True, exist_ok=True)
+
+        for txt_file in txt_files:
+            try:
+                # Créer le nom du fichier CSV (remplacer espaces par _)
+                csv_name = txt_file.stem.replace(" ", "_") + ".csv"
+                csv_file = temp_csv_dir / csv_name
+                logger.info(f"Conversion: {txt_file.name} → {csv_file.name}")
+                convert_txt_file_to_csv(txt_file, csv_file, logger=logger)
+                converted_files.append(csv_file)
+            except Exception as e:
+                logger.error(
+                    f"Erreur lors de la conversion de {txt_file.name}: {e}",
+                    exc_info=args.verbose >= 2,
+                )
+
+        if not converted_files:
+            logger.warning("Aucun fichier TXT n'a pu être converti")
+            return
+
+        logger.info(f"{len(converted_files)} fichier(s) TXT converti(s) en CSV")
         if args.correct:
             logger.info("Mode correction activé")
         logger.info("=" * 60)
 
-        # Récupérer le délimiteur depuis la config (par défaut ";")
+        # Récupérer le délimiteur depuis la config (par défaut ",")
         delimiter = config.get("csv", "delimiter", fallback=",")
         logger.debug(f"Délimiteur utilisé: '{delimiter}'")
 
-        # Traiter chaque fichier CSV
-        for idx, csv_file in enumerate(csv_files, start=1):
-            logger.info(f"[{idx}/{len(csv_files)}] Traitement de: {csv_file.name}")
+        # Traiter chaque fichier CSV converti
+        for idx, csv_file in enumerate(converted_files, start=1):
+            logger.info(f"[{idx}/{len(converted_files)}] Traitement de: {csv_file.name}")
             logger.debug(f"Chemin complet: {csv_file}")
 
             try:
@@ -167,11 +194,25 @@ def main():
                     f"Erreur lors du traitement de {csv_file.name}: {e}", exc_info=args.verbose >= 2
                 )
 
+        # Nettoyer les fichiers CSV temporaires convertis
+        if converted_files:
+            logger.debug("Nettoyage des fichiers CSV temporaires...")
+            for csv_file in converted_files:
+                try:
+                    csv_file.unlink()
+                except Exception as e:
+                    logger.warning(f"Impossible de supprimer {csv_file.name}: {e}")
+            # Supprimer le répertoire temporaire s'il est vide
+            from contextlib import suppress
+
+            with suppress(Exception):
+                temp_csv_dir.rmdir()  # Le répertoire n'est pas vide ou n'existe pas
+
         logger.info("=" * 60)
         if args.correct:
-            logger.info(f"Correction terminée pour {len(csv_files)} fichier(s)")
+            logger.info(f"Correction terminée pour {len(converted_files)} fichier(s) TXT")
         else:
-            logger.info(f"Validation terminée pour {len(csv_files)} fichier(s)")
+            logger.info(f"Validation terminée pour {len(converted_files)} fichier(s) TXT")
 
     except KeyError as e:
         logging.error(f"Erreur de configuration: {e}")

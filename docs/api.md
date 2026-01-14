@@ -198,7 +198,9 @@ Obtient l'instance globale du lecteur de configuration.
 def get_config(config_path: Optional[Path] = None) -> ConfigReader
 ```
 
-## Module `cres_validation.validate_columns`
+## Module `cres_validation.columns_validator`
+
+Module de validation des colonnes avec schémas Pandera.
 
 ### `validate_csv_columns()`
 
@@ -228,16 +230,21 @@ success = validate_csv_columns(
 )
 ```
 
-## Module `cres_validation.colums_validator`
+### `colums_validator` (sous-module)
 
-Ce module définit les schémas Pandera pour la validation des colonnes.
+Ce sous-module définit les schémas Pandera pour la validation des colonnes.
 
 **Note** : Utilise `import pandera.pandas as pa` pour l'API recommandée de Pandera.
 
-### Schémas disponibles
+**Schémas disponibles :**
 
 - `schema_by_table["individu"]` : Schéma pour la table individu
 - `schema_by_table["menage"]` : Schéma pour la table ménage
+
+**Validateurs disponibles :**
+
+- `vectorized_date_validator_jjmmaaaa` : Validateur de dates au format JJ/MM/AAAA
+- `vectorized_date_validator_aaaammjj` : Validateur de dates au format AAAA-MM-JJ
 
 ## Module `cres_validation.convert_txt_to_csv`
 

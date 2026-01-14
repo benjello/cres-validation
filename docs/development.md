@@ -9,8 +9,10 @@ cres-validation/
 │   ├── config.py          # Module de configuration
 │   ├── config.ini         # Template de configuration
 │   ├── columns_number_validator.py # Module de validation/correction CSV
-│   ├── colums_validator.py # Schémas Pandera
-│   ├── validate_columns.py # Validation avec Pandera
+│   └── columns_validator/  # Module de validation des colonnes
+│       ├── __init__.py
+│       ├── colums_validator.py # Schémas Pandera
+│       └── validate_columns.py # Validation avec Pandera
 │   └── convert_txt_to_csv.py # Conversion TXT → CSV
 ├── main.py                # Point d'entrée principal
 ├── pyproject.toml         # Configuration du projet

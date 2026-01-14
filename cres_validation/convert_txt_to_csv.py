@@ -49,6 +49,63 @@ def detect_encoding(file_path: Path) -> str:
         return "latin-1"
 
 
+def convert_txt_file_to_csv(
+    txt_file: Path, csv_file: Path, logger: logging.Logger | None = None
+) -> Path:
+    """
+    Convertit un fichier .txt en .csv.
+
+    Args:
+        txt_file: Chemin vers le fichier .txt source
+        csv_file: Chemin vers le fichier .csv de destination
+        logger: Logger optionnel pour les messages
+
+    Returns:
+        Chemin vers le fichier CSV créé
+    """
+    # Utiliser un logger par défaut si aucun n'est fourni
+    if logger is None:
+        logger = logging.getLogger("cres-validation.convert")
+        if not logger.handlers:
+            handler = logging.StreamHandler()
+            handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+
+    if not txt_file.exists():
+        raise FileNotFoundError(f"Le fichier source n'existe pas: {txt_file}")
+
+    # Détecter l'encodage
+    encoding = detect_encoding(txt_file)
+    logger.debug(f"Encodage détecté: {encoding}")
+
+    try:
+        # Lire le fichier avec l'encodage détecté
+        with open(txt_file, encoding=encoding) as infile:
+            content = infile.read()
+
+        # Remplacer les délimiteurs ; par , (sans corriger les lignes incomplètes)
+        content = content.replace(";", ",")
+
+        # Créer le répertoire de destination s'il n'existe pas
+        csv_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # Écrire en UTF-8 dans le fichier CSV
+        with open(csv_file, "w", encoding="utf-8") as outfile:
+            outfile.write(content)
+
+        original_size = txt_file.stat().st_size
+        new_size = csv_file.stat().st_size
+        logger.info(f"Converti: {txt_file.name} → {csv_file.name}")
+        logger.debug(f"Taille: {original_size:,} bytes → {new_size:,} bytes")
+
+        return csv_file
+
+    except Exception as e:
+        logger.error(f"Erreur lors de la conversion de {txt_file.name}: {e}", exc_info=True)
+        raise
+
+
 def convert_txt_to_csv(
     source_dir: Path, csv_dir: Path, logger: logging.Logger | None = None
 ) -> None:

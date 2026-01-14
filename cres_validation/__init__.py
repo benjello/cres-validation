@@ -9,15 +9,18 @@ from cres_validation.columns_number_validator import (
     validate_csv,
 )
 from cres_validation.config import get_config
-from cres_validation.convert_txt_to_csv import convert_txt_to_csv, detect_encoding
-from cres_validation.validate_columns import validate_csv_columns
+from cres_validation.convert_txt_to_csv import (
+    convert_txt_file_to_csv,
+    convert_txt_to_csv,
+    detect_encoding,
+)
 
 __all__ = [
     "get_config",
     "analyze_csv_columns",
     "correct_csv",
     "validate_csv",
-    "validate_csv_columns",
     "convert_txt_to_csv",
+    "convert_txt_file_to_csv",
     "detect_encoding",
 ]
