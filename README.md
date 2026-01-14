@@ -97,6 +97,10 @@ cres-validation/
     └── docs.yml
 ```
 
+## Changelog
+
+Voir [CHANGELOG.md](CHANGELOG.md) pour la liste des changements.
+
 ## Licence
 
 Ce projet est sous licence [AGPL v3](LICENSE).
