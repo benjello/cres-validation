@@ -9,12 +9,12 @@ from cres_validation.columns_number_validator import (
     validate_csv,
 )
 from cres_validation.config import get_config
+from cres_validation.convert_to_parquet import convert_csv_to_parquet
 from cres_validation.convert_txt_to_csv import (
     convert_txt_file_to_csv,
     convert_txt_to_csv,
     detect_encoding,
 )
-from cres_validation.convert_to_parquet import convert_csv_to_parquet
 
 __all__ = [
     "get_config",
