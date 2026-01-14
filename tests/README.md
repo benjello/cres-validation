@@ -13,7 +13,8 @@ tests/
 │   │   ├── source/          # Fichiers .txt originaux (avec espaces dans les noms)
 │   │   └── csv/             # Fichiers .csv convertis (espaces remplacés par _)
 │   ├── output/              # Répertoire pour les fichiers de sortie
-│   │   └── expected_output.csv  # Fichier CSV attendu après correction
+│   │   ├── csv/             # Fichiers CSV corrigés attendus (corrected_*.csv)
+│   │   └── parquet/         # Versions Parquet attendues (corrected_*.parquet)
 │   └── logs/                # Répertoire pour les logs
 └── README.md                # Ce fichier
 ```
@@ -23,7 +24,8 @@ tests/
 - `fixtures/input/source/` : Répertoire contenant les fichiers .txt originaux (avec espaces dans les noms)
 - `fixtures/input/csv/` : Répertoire contenant les fichiers .csv convertis (utilisés pour les tests)
 - `fixtures/output/` : Répertoire pour les fichiers de sortie
-  - `expected_output.csv` : Fichier CSV attendu après correction, avec toutes les lignes ayant le bon nombre de colonnes
+  - `output/csv/` : Fichiers CSV corrigés attendus (format: `corrected_{nom_source}.csv`)
+  - `output/parquet/` : Versions Parquet des CSV corrigés (format: `corrected_{nom_source}.parquet`)
 - `fixtures/logs/` : Répertoire pour les logs générés par les tests (seul le dernier log est conservé)
 
 ## Exécution des tests

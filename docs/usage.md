@@ -71,7 +71,7 @@ from cres_validation import validate_csv, correct_csv
 # Valider un fichier
 validate_csv(
     Path("data.csv"),
-    delimiter=",",
+    delimiter=";",
     show_progress=True
 )
 
@@ -79,7 +79,7 @@ validate_csv(
 correct_csv(
     Path("data.csv"),
     Path("data_corrected.csv"),
-    delimiter=",",
+    delimiter=";",
     show_progress=True
 )
 ```
@@ -122,7 +122,7 @@ input_dir/
 ```
 
 Chaque fichier TXT sera :
-1. Converti automatiquement en CSV (remplacement `;` → `,`)
+1. Converti automatiquement en CSV (le délimiteur `;` est conservé)
 2. Validé ou corrigé selon le mode choisi
 3. Les fichiers CSV temporaires sont nettoyés automatiquement
 
@@ -130,7 +130,8 @@ Chaque fichier TXT sera :
 
 Après correction, vous obtiendrez :
 
-- **Fichiers corrigés** dans `output_dir` avec le format `corrected_{nom_source}.csv`
+- **Fichiers corrigés (CSV)** dans `output_dir/csv/` avec le format `corrected_{nom_source}.csv`
+- **Fichiers corrigés (Parquet)** dans `output_dir/parquet/` avec le format `corrected_{nom_source}.parquet`
 - **Header ajusté automatiquement** : si le header a une colonne supplémentaire, elle est supprimée
 - **Fichiers de log** dans `log_dir` avec les détails de l'opération
 - **Statistiques** : nombre de lignes originales, lignes corrigées, lignes finales

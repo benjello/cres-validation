@@ -29,6 +29,7 @@ tests/
 ├── __init__.py
 ├── test_columns_validator.py # Tests pour le module columns_number_validator
 ├── test_convert_txt_to_csv.py # Tests pour la conversion TXT → CSV
+├── test_convert_to_parquet.py # Tests de conformité CSV ↔ Parquet
 ├── test_performance.py        # Tests de performance
 ├── fixtures/                 # Fichiers de test
 │   ├── input/               # Fichiers d'entrée
@@ -95,7 +96,16 @@ Test de validation du fichier de log :
 
 ### Tests de conversion (`test_convert_txt_to_csv.py`)
 
-Tests pour la conversion de fichiers TXT vers CSV, incluant la détection d'encodage et le remplacement des délimiteurs.
+Tests pour la conversion de fichiers TXT vers CSV, incluant la détection d'encodage.
+
+Le délimiteur est **fixé à `;`** (pas de conversion en `,`).
+
+### Tests Parquet (`test_convert_to_parquet.py`)
+
+Tests de conformité CSV ↔ Parquet :
+
+- Vérifie que la conversion CSV → Parquet fonctionne
+- Vérifie que les données dans le Parquet correspondent exactement au CSV (dimensions, colonnes, valeurs)
 
 ### Tests de performance (`test_performance.py`)
 
@@ -149,7 +159,8 @@ Les fichiers de test dans `tests/fixtures/` sont utilisés pour :
 
 - **input/source/** : Fichiers TXT source avec des espaces dans les noms
 - **input/csv/** : Fichiers CSV convertis depuis les fichiers TXT
-- **output/** : Fichiers CSV attendus après correction (format: `corrected_{nom_source}.csv`)
+- **output/csv/** : Fichiers CSV attendus après correction (format: `corrected_{nom_source}.csv`)
+- **output/parquet/** : Versions Parquet des CSV corrigés (format: `corrected_{nom_source}.parquet`)
 - **logs/** : Logs générés lors des tests
 
 ### Format des logs de test

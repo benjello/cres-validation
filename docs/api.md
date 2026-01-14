@@ -33,7 +33,7 @@ Analyse un fichier CSV pour détecter les lignes avec un nombre de colonnes inco
 ```python
 def analyze_csv_columns(
     csv_path: Path,
-    delimiter: str = ',',
+    delimiter: str = ';',
     encoding: str = 'utf-8',
     use_most_frequent: bool = True,
     show_progress: bool = True,
@@ -45,7 +45,7 @@ def analyze_csv_columns(
 **Paramètres :**
 
 - `csv_path` : Chemin vers le fichier CSV
-- `delimiter` : Délimiteur utilisé (défaut: `,`)
+- `delimiter` : Délimiteur utilisé (défaut: `;`)
 - `encoding` : Encodage du fichier (défaut: `utf-8`)
 - `use_most_frequent` : Utiliser le nombre de colonnes le plus fréquent (défaut: `True`)
 - `show_progress` : Afficher la progression (défaut: `True`)
@@ -67,7 +67,7 @@ from cres_validation.columns_number_validator import analyze_csv_columns
 
 expected, problematic, counter, details = analyze_csv_columns(
     Path("data.csv"),
-    delimiter=","
+    delimiter=";"
 )
 print(f"Colonnes attendues: {expected}")
 print(f"Lignes problématiques: {len(problematic)}")
@@ -80,7 +80,7 @@ Valide un fichier CSV et affiche les lignes problématiques.
 ```python
 def validate_csv(
     csv_path: Path,
-    delimiter: str = ',',
+    delimiter: str = ';',
     encoding: str = 'utf-8',
     show_progress: bool = True,
     max_problematic_display: int = 100,
@@ -103,7 +103,7 @@ def validate_csv(
 from pathlib import Path
 from cres_validation import validate_csv
 
-validate_csv(Path("data.csv"), delimiter=",")
+validate_csv(Path("data.csv"), delimiter=";")
 ```
 
 ### `correct_csv()`
@@ -121,7 +121,7 @@ Corrige un fichier CSV en fusionnant les lignes incomplètes.
 def correct_csv(
     csv_path: Path,
     output_path: Path,
-    delimiter: str = ',',
+    delimiter: str = ';',
     encoding: str = 'utf-8',
     show_progress: bool = True,
     chunk_size: int = 100000,
@@ -154,7 +154,7 @@ from cres_validation import correct_csv
 correct_csv(
     Path("data.csv"),
     Path("data_corrected.csv"),
-    delimiter=","
+    delimiter=";"
 )
 ```
 
@@ -187,7 +187,7 @@ from cres_validation import get_config
 
 config = get_config()
 input_dir = config.get_path("paths", "input_dir")
-delimiter = config.get("csv", "delimiter", fallback=",")
+delimiter = ";"
 ```
 
 ### `get_config()`
@@ -211,7 +211,7 @@ Valide les colonnes d'un CSV avec les schémas Pandera.
 ```python
 def validate_csv_columns(
     csv_path: Path,
-    delimiter: str = ',',
+    delimiter: str = ';',
     table_name: str = 'individu',
     column_mapping: dict | None = None
 ) -> bool
@@ -225,7 +225,7 @@ from cres_validation import validate_csv_columns
 
 success = validate_csv_columns(
     Path("data.csv"),
-    delimiter=",",
+    delimiter=";",
     table_name="individu"
 )
 ```
@@ -251,6 +251,8 @@ Ce sous-module définit les schémas Pandera pour la validation des colonnes.
 ### `convert_txt_to_csv()`
 
 Convertit les fichiers `.txt` en `.csv` en remplaçant les délimiteurs.
+
+Note : dans l'implémentation actuelle, le délimiteur `;` est conservé (pas de conversion en `,`).
 
 ```python
 def convert_txt_to_csv(source_dir: Path, csv_dir: Path) -> None

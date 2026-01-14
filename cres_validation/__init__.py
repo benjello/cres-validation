@@ -1,6 +1,6 @@
 """Package cres_validation - Validation et correction de fichiers CSV pour le projet CRES"""
 
-__version__ = "0.1.0"
+__version__ = "0.2.1"
 
 # Exports publics
 from cres_validation.columns_number_validator import (
