@@ -11,7 +11,6 @@ from cres_validation.columns_number_validator import (
     csv_validate_columns_number,
 )
 from cres_validation.columns_validator import validate_csv_columns
-from cres_validation.rejected_lines import save_rejected_lines_to_csv
 
 # Chemin vers les fichiers de test dans fixtures
 TESTS_DIR = Path(__file__).parent
