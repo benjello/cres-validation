@@ -44,10 +44,10 @@ class FileNameFilter(logging.Filter):
 
         # Accepter les messages de préparation/lecture qui suivent une validation
         # (ils sont dans le même contexte de validation)
-        if any(keyword in message for keyword in ["Lecture du fichier", "Header détecté", "Préparation des données", "colonnes", "Conversion des dates"]):
-            # Vérifier si le logger est dans le contexte de validation
-            if "cres-validation" in record.name or "pandera" in record.name.lower():
-                return True
+        if any(keyword in message for keyword in ["Lecture du fichier", "Header détecté", "Préparation des données", "colonnes", "Conversion des dates"]) and (
+            "cres-validation" in record.name or "pandera" in record.name.lower()
+        ):
+            return True
 
         # Vérifier si le message contient le nom du fichier (avec ou sans espaces)
         file_name_with_spaces = self.file_name.replace("_", " ")

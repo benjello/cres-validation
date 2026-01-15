@@ -84,7 +84,8 @@ def csv_validate_columns_number(
     encoding: str = 'utf-8',
     show_progress: bool = True,
     max_problematic_display: int = 100,
-    logger: Optional[logging.Logger] = None
+    logger: Optional[logging.Logger] = None,
+    rejected_output_path: Optional[Path] = None
 ) -> None
 ```
 
@@ -96,6 +97,7 @@ def csv_validate_columns_number(
 - `show_progress` : Afficher la progression
 - `max_problematic_display` : Nombre maximum de lignes problématiques à afficher
 - `logger` : Logger optionnel
+- `rejected_output_path` : Chemin optionnel vers un fichier CSV pour sauvegarder les lignes rejetées
 
 **Exemple :**
 
@@ -183,11 +185,11 @@ class ConfigReader:
 **Exemple :**
 
 ```python
-from cres_validation import get_config
+from cres_validation import get_config, get_delimiter
 
 config = get_config()
-input_dir = config.get_path("paths", "input_dir")
-delimiter = ";"
+source_dir = config.get_path("paths", "source_dir")
+delimiter = get_delimiter()  # Récupère depuis CRES_CSV_DELIMITER ou ';' par défaut
 ```
 
 ### `get_config()`
@@ -212,10 +214,21 @@ Valide les colonnes d'un CSV avec les schémas Pandera.
 def validate_csv_columns(
     csv_path: Path,
     delimiter: str = ';',
-    table_name: str = 'individu',
-    column_mapping: dict | None = None
+    schema_name: str | None = None,
+    schema_to_use: pa.DataFrameSchema | None = None,
+    logger: Optional[logging.Logger] = None,
+    rejected_output_path: Optional[Path] = None
 ) -> bool
 ```
+
+**Paramètres :**
+
+- `csv_path` : Chemin vers le fichier CSV à valider
+- `delimiter` : Délimiteur utilisé (défaut: `;`)
+- `schema_name` : Nom du schéma à utiliser (ex: `'individu'`)
+- `schema_to_use` : Schéma Pandera personnalisé à utiliser directement
+- `logger` : Logger optionnel
+- `rejected_output_path` : Chemin optionnel vers un fichier CSV pour sauvegarder les lignes avec dates invalides
 
 **Exemple :**
 

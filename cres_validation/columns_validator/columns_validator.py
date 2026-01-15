@@ -17,6 +17,7 @@ def validate_csv_columns(
     schema_name: str | None = None,
     schema_to_use: pa.DataFrameSchema | None = None,
     logger: logging.Logger | None = None,
+    rejected_output_path: Path | None = None,
 ) -> bool:
     """
     Valide les colonnes d'un CSV avec un schéma Pandera en utilisant le header pour mapper les colonnes.
@@ -117,11 +118,19 @@ def validate_csv_columns(
                 df_mapped[date_col] = df_mapped[date_col].apply(convert_date_jjmmaa_to_jjmmaaaa)
 
         # Filtrer les lignes où date_naissance ne ressemble pas à une date (colonne principale)
+        rejected_lines = []
         if "date_naissance" in df_mapped.columns:
             date_mask = df_mapped["date_naissance"].str.contains(r"\d{1,2}/\d{1,2}/\d{4}", na=False)
             non_date_count = (~date_mask).sum()
             if non_date_count > 0:
-                logger.warning(f"{non_date_count} ligne(s) avec date_naissance invalide ignorée(s)")
+                logger.warning(f"[{csv_path.name}] {non_date_count} ligne(s) avec date_naissance invalide ignorée(s)")
+                # Collecter les lignes rejetées
+                if rejected_output_path:
+                    rejected_df = df[~date_mask]
+                    # Convertir les lignes rejetées en format CSV
+                    for idx, row in rejected_df.iterrows():
+                        line_content = delimiter.join(str(val) for val in row.values)
+                        rejected_lines.append((idx + 2, line_content))  # +2 car idx commence à 0 et on a le header
             df_mapped = df_mapped[date_mask].reset_index(drop=True)
 
         if len(df_mapped) == 0:
@@ -136,7 +145,7 @@ def validate_csv_columns(
                 df_mapped[col_name] = pd.to_numeric(df_mapped[col_name], errors="coerce").astype("Int64")
                 null_count = df_mapped[col_name].isna().sum()
                 if null_count > 0:
-                    logger.warning(f"{null_count} valeur(s) null dans '{col_name}', remplacée(s) par 0")
+                    logger.warning(f"[{csv_path.name}] {null_count} valeur(s) null dans '{col_name}', remplacée(s) par 0")
                     df_mapped[col_name] = df_mapped[col_name].fillna(0).astype(int)
                 else:
                     df_mapped[col_name] = df_mapped[col_name].astype(int)
@@ -157,6 +166,21 @@ def validate_csv_columns(
                 df_mapped[col_name] = pd.to_numeric(df_mapped[col_name], errors="coerce").astype("Int64")
 
         logger.debug(f"Lignes à valider: {len(df_mapped)}")
+
+        # Sauvegarder les lignes rejetées si nécessaire
+        if rejected_lines and rejected_output_path:
+            try:
+                from cres_validation.rejected_lines import save_rejected_lines_to_csv
+                save_rejected_lines_to_csv(
+                    csv_path,
+                    rejected_lines,
+                    rejected_output_path,
+                    delimiter=delimiter,
+                    encoding="utf-8",
+                    logger=logger,
+                )
+            except Exception as e:
+                logger.warning(f"Erreur lors de la sauvegarde des lignes rejetées: {e}", exc_info=True)
 
         # Valider avec le schéma Pandera
         logger.debug("Validation avec le schéma Pandera...")
@@ -189,7 +213,9 @@ if __name__ == "__main__":
     else:
         config = get_config()
         csv_path = (
-            config.get_path("paths", "input_dir") / "echantillon_cnrps_pb_fondation_fidaa.csv"
+            config.get_path("paths", "source_dir").parent
+            / "csv"
+            / "echantillon_cnrps_pb_fondation_fidaa.csv"
         )
 
     if not csv_path.exists():

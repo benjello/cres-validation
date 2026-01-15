@@ -6,6 +6,7 @@ Outil de validation et correction de fichiers CSV pour le projet CRES.
 
 - ✅ **Détection automatique** des lignes avec un nombre de colonnes incorrect
 - ✅ **Correction automatique** des retours à la ligne intempestifs
+- ✅ **Export des lignes rejetées** dans des fichiers CSV séparés
 - ✅ **Support des gros fichiers** (millions de lignes) avec traitement optimisé
 - ✅ **Logging configurable** avec niveaux de verbosité
 - ✅ **Configuration flexible** via fichier INI

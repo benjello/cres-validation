@@ -191,9 +191,9 @@ if __name__ == "__main__":
     logger = logging.getLogger("cres-validation.convert")
 
     config = get_config()
-    input_dir = config.get_path("paths", "input_dir")
-    source_dir = input_dir / "source"
-    csv_dir = input_dir / "csv"
+    source_dir = config.get_path("paths", "source_dir")
+    # Créer un répertoire CSV à côté du répertoire source
+    csv_dir = source_dir.parent / "csv"
 
     logger.info(f"Répertoire source: {source_dir}")
     logger.info(f"Répertoire CSV: {csv_dir}")

@@ -11,6 +11,7 @@ from cres_validation.columns_number_validator import (
     csv_validate_columns_number,
 )
 from cres_validation.columns_validator import validate_csv_columns
+from cres_validation.rejected_lines import save_rejected_lines_to_csv
 
 # Chemin vers les fichiers de test dans fixtures
 TESTS_DIR = Path(__file__).parent
@@ -223,6 +224,60 @@ def test_correct_csv_reduces_line_count(output_file, test_logger):
     assert corrected_lines < original_lines, (
         f"Le fichier de test devrait avoir des lignes fusionnées ({corrected_lines} vs {original_lines})"
     )
+
+
+def test_rejected_lines_saved(output_file, test_logger, tmp_path):
+    """Test que les lignes rejetées sont sauvegardées correctement"""
+    # Analyser le fichier pour obtenir les lignes problématiques
+    expected_cols, problematic_lines, _, problematic_lines_dict = analyze_csv_columns(
+        INPUT_FILE, delimiter=DELIMITER, show_progress=False, logger=test_logger
+    )
+
+    # Vérifier qu'il y a des lignes problématiques
+    assert len(problematic_lines) > 0, "Le fichier de test doit contenir des lignes problématiques"
+
+    # Créer un fichier de sortie pour les lignes rejetées
+    rejected_file = tmp_path / "rejected_test.csv"
+
+    # Valider avec sauvegarde des lignes rejetées
+    csv_validate_columns_number(
+        INPUT_FILE,
+        delimiter=DELIMITER,
+        show_progress=False,
+        logger=test_logger,
+        rejected_output_path=rejected_file,
+    )
+
+    # Vérifier que le fichier de lignes rejetées a été créé
+    assert rejected_file.exists(), "Le fichier de lignes rejetées doit être créé"
+
+    # Vérifier que le fichier n'est pas vide
+    file_size = rejected_file.stat().st_size
+    assert file_size > 0, "Le fichier de lignes rejetées ne doit pas être vide"
+
+    # Lire le fichier et vérifier qu'il contient des lignes
+    with open(rejected_file, encoding="utf-8") as f:
+        rejected_lines = [line.strip() for line in f if line.strip()]
+
+    # Le fichier doit contenir au moins le header + des lignes rejetées
+    assert len(rejected_lines) > 1, "Le fichier de lignes rejetées doit contenir au moins le header et des lignes"
+
+    # Vérifier que toutes les lignes problématiques sont présentes dans le fichier rejeté
+    # (certaines lignes peuvent apparaître plusieurs fois car elles font partie de plusieurs paires)
+    with open(INPUT_FILE, encoding="utf-8") as f:
+        source_lines = [line.rstrip() for line in f if line.strip()]
+
+    # Vérifier que les lignes problématiques sont dans le fichier rejeté
+    problematic_found = 0
+    for line_num in problematic_lines:
+        if line_num <= len(source_lines):
+            source_line = source_lines[line_num - 1].rstrip()
+            # La ligne doit être présente dans le fichier rejeté (peut être plusieurs fois)
+            if any(source_line == rejected_line for rejected_line in rejected_lines[1:]):  # Skip header
+                problematic_found += 1
+
+    # Au moins certaines lignes problématiques doivent être présentes
+    assert problematic_found > 0, "Au moins certaines lignes problématiques doivent être dans le fichier rejeté"
 
 
 if __name__ == "__main__":

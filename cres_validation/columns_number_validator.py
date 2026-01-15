@@ -202,6 +202,7 @@ def csv_validate_columns_number(
     show_progress: bool = True,
     max_problematic_display: int = 100,
     logger: logging.Logger | None = None,
+    rejected_output_path: Path | None = None,
 ) -> None:
     """
     Valide un fichier CSV et affiche les lignes problématiques.
@@ -241,8 +242,59 @@ def csv_validate_columns_number(
 
         if problematic_lines_list:
             logger.warning(
-                f"{len(problematic_lines_list):,} ligne(s) avec un nombre de colonnes incorrect"
+                f"[{csv_path.name}] {len(problematic_lines_list):,} ligne(s) avec un nombre de colonnes incorrect"
             )
+
+            # Collecter les lignes rejetées pour sauvegarde (ligne avec moins de colonnes + ligne suivante fusionnée)
+            rejected_lines = []
+            if rejected_output_path:
+                try:
+                    def collect_rejected_lines(enc: str):
+                        nonlocal rejected_lines
+                        rejected_lines = []
+                        all_lines = []
+                        current_line = 0
+                        with open(csv_path, encoding=enc, newline="", buffering=8192 * 16) as f:
+                            for line_num, line in enumerate(f, start=1):
+                                all_lines.append((line_num, line))
+                                current_line += 1
+                                if show_progress and current_line % 100000 == 0:
+                                    logger.debug(f"Lecture des lignes: {current_line:,}...")
+
+                        # Pour chaque ligne avec MOINS de colonnes que prévu, prendre cette ligne et la suivante
+                        problematic_set = set(problematic_lines_list)
+                        for idx, (line_num, line) in enumerate(all_lines):
+                            if line_num in problematic_set:
+                                stripped = line.rstrip("\n\r")
+                                if stripped.strip():
+                                    col_count = count_columns_in_line_fast(stripped, delimiter)
+                                    # Si la ligne a MOINS de colonnes que prévu, elle sera fusionnée
+                                    if col_count < expected_cols:
+                                        # Ajouter la ligne problématique
+                                        rejected_lines.append((line_num, line))
+                                        # Ajouter la ligne suivante (qui sera fusionnée avec elle)
+                                        if idx + 1 < len(all_lines):
+                                            next_line_num, next_line = all_lines[idx + 1]
+                                            rejected_lines.append((next_line_num, next_line))
+
+                    try:
+                        collect_rejected_lines(encoding)
+                    except UnicodeDecodeError:
+                        collect_rejected_lines("latin-1")
+
+                    # Sauvegarder les lignes rejetées
+                    if rejected_lines:
+                        from cres_validation.rejected_lines import save_rejected_lines_to_csv
+                        save_rejected_lines_to_csv(
+                            csv_path,
+                            rejected_lines,
+                            rejected_output_path,
+                            delimiter=delimiter,
+                            encoding=encoding,
+                            logger=logger,
+                        )
+                except Exception as e:
+                    logger.warning(f"Erreur lors de la sauvegarde des lignes rejetées: {e}", exc_info=True)
 
             # Afficher seulement les premières lignes problématiques avec leur nombre de colonnes
             if len(problematic_lines_list) <= max_problematic_display:
@@ -582,7 +634,7 @@ def correct_csv(
         )
     elif reduction < 0:
         logger.warning(
-            f"Résumé: {original_lines_count:,} lignes → {total_lines_corrected:,} lignes (augmentation inattendue)"
+            f"[{csv_path.name}] Résumé: {original_lines_count:,} lignes → {total_lines_corrected:,} lignes (augmentation inattendue)"
         )
     else:
         logger.info(

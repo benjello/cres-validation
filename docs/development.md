@@ -2,7 +2,7 @@
 
 ## Structure du projet
 
-```
+```text
 cres-validation/
 ├── cres_validation/        # Package principal
 │   ├── __init__.py        # Exports publics
@@ -141,6 +141,7 @@ Voir `.github/workflows/ci.yml` et `.github/workflows/docs.yml` pour plus de dé
 ### Optimisations CI
 
 La CI est optimisée pour être rapide :
+
 - Les tests lents (1M lignes) sont exécutés mais ne bloquent pas la CI
 - Les fichiers de test volumineux sont générés à la volée (pas dans le repo)
 - Les tests rapides sont exécutés en premier pour détecter rapidement les erreurs
