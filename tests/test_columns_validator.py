@@ -6,7 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from cres_validation.columns_number_validator import analyze_csv_columns, correct_csv, csv_validate_columns_number
+from cres_validation.columns_number_validator import (
+    analyze_csv_columns,
+    correct_csv,
+    csv_validate_columns_number,
+)
 
 # Chemin vers les fichiers de test dans fixtures
 TESTS_DIR = Path(__file__).parent
