@@ -1,4 +1,5 @@
 import configparser
+import os
 import shutil
 from pathlib import Path
 
@@ -128,3 +129,20 @@ def reset_config() -> None:
     """Réinitialise l'instance globale (utile pour les tests)"""
     global _config_reader
     _config_reader = None
+
+
+def get_delimiter() -> str:
+    """
+    Récupère le délimiteur CSV depuis la variable d'environnement Python.
+
+    La variable d'environnement Python utilisée est `CRES_CSV_DELIMITER`
+    (accessible via `os.environ`).
+    Si elle n'est pas définie, retourne ';' par défaut.
+
+    Note: Cette fonction pourra être étendue à l'avenir pour permettre
+    un ajustement fichier par fichier.
+
+    Returns:
+        str: Le délimiteur CSV (par défaut ';')
+    """
+    return os.getenv("CRES_CSV_DELIMITER", ";")

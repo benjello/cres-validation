@@ -1,7 +1,6 @@
 """Tests pour le script de conversion TXT vers CSV"""
 
 import logging
-from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -11,51 +10,8 @@ from cres_validation.convert_txt_to_csv import convert_txt_to_csv, detect_encodi
 # Chemin vers les fichiers de test dans fixtures
 TESTS_DIR = Path(__file__).parent
 FIXTURES_DIR = TESTS_DIR / "fixtures"
-LOGS_DIR = FIXTURES_DIR / "logs"
-
 SOURCE_DIR = FIXTURES_DIR / "input" / "source"
 CSV_DIR = FIXTURES_DIR / "input" / "csv"
-
-
-@pytest.fixture(scope="session", autouse=True)
-def setup_convert_logger():
-    """Configure le logger pour capturer les logs de conversion"""
-    # Créer le répertoire de logs s'il n'existe pas
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Créer un fichier de log avec nom du fichier et timestamp lisible
-    # Format: nom_du_fichier-date-heure.log (ex: echantillon_cnrps_pb_fondation_fidaa-2026_01_13-13_02_28.log)
-    # Pour les tests de conversion, on utilise le nom du premier fichier .txt trouvé ou un nom générique
-    txt_files = list(SOURCE_DIR.glob("*.txt"))
-    # Utiliser le nom du premier fichier .txt (sans extension et avec espaces remplacés par _)
-    # Le nom du fichier TXT source (ex: "echantillon cnrps pb fondation fidaa.txt")
-    file_name = txt_files[0].stem.replace(" ", "_") if txt_files else "convert_txt_to_csv"
-    date_part = datetime.now().strftime("%Y_%m_%d")
-    time_part = datetime.now().strftime("%H_%M_%S")
-    log_file = LOGS_DIR / f"{file_name}-{date_part}-{time_part}.log"
-
-    # Formatter
-    formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)s - %(name)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-    )
-
-    # Handler pour le fichier
-    file_handler = logging.FileHandler(log_file, encoding="utf-8")
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)
-
-    # Configurer le logger pour convert_txt_to_csv
-    convert_logger = logging.getLogger("cres-validation.convert")
-    convert_logger.setLevel(logging.DEBUG)
-    convert_logger.addHandler(file_handler)
-    convert_logger.propagate = False
-
-    yield log_file
-
-    # Nettoyer après les tests
-    for handler in convert_logger.handlers[:]:
-        handler.close()
-        convert_logger.removeHandler(handler)
 
 
 @pytest.fixture
