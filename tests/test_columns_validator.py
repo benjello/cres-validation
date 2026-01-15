@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from cres_validation.columns_number_validator import analyze_csv_columns, correct_csv, validate_csv
+from cres_validation.columns_number_validator import analyze_csv_columns, correct_csv, csv_validate_columns_number
 
 # Chemin vers les fichiers de test dans fixtures
 TESTS_DIR = Path(__file__).parent
@@ -138,13 +138,13 @@ def test_analyze_csv_columns(test_logger):
     assert len(column_counter) > 0, "Le compteur de colonnes doit contenir des données"
 
 
-def test_validate_csv(test_logger):
+def test_csv_validate_columns_number(test_logger):
     """Test de la validation du fichier CSV"""
     # Cette fonction ne fait que logger, on vérifie qu'elle ne lève pas d'exception
     try:
-        validate_csv(INPUT_FILE, delimiter=DELIMITER, show_progress=False, logger=test_logger)
+        csv_validate_columns_number(INPUT_FILE, delimiter=DELIMITER, show_progress=False, logger=test_logger)
     except Exception as e:
-        pytest.fail(f"validate_csv a levé une exception: {e}")
+        pytest.fail(f"csv_validate_columns_number a levé une exception: {e}")
 
 
 def test_correct_csv(output_file, test_logger):

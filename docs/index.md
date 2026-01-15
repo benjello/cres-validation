@@ -36,11 +36,11 @@ uv run python main.py --correct -v
 ## Exemple d'utilisation
 
 ```python
-from cres_validation import validate_csv, correct_csv
+from cres_validation import csv_validate_columns_number, correct_csv
 from pathlib import Path
 
 # Valider un fichier CSV
-validate_csv(Path("data.csv"), delimiter=";")
+csv_validate_columns_number(Path("data.csv"), delimiter=";")
 
 # Corriger un fichier CSV
 correct_csv(

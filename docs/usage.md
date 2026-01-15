@@ -66,10 +66,10 @@ Sortie détaillée avec tous les messages de debug.
 
 ```python
 from pathlib import Path
-from cres_validation import validate_csv, correct_csv
+from cres_validation import csv_validate_columns_number, correct_csv
 
 # Valider un fichier
-validate_csv(
+csv_validate_columns_number(
     Path("data.csv"),
     delimiter=";",
     show_progress=True
