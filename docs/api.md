@@ -8,7 +8,7 @@ Le package `cres_validation` contient tous les modules nécessaires pour la vali
 
 ```python
 # Import depuis le package
-from cres_validation import validate_csv, correct_csv, get_config
+from cres_validation import csv_validate_columns_number, correct_csv, get_config
 
 # Ou import depuis les modules spécifiques
 from cres_validation.columns_number_validator import analyze_csv_columns
@@ -73,12 +73,12 @@ print(f"Colonnes attendues: {expected}")
 print(f"Lignes problématiques: {len(problematic)}")
 ```
 
-### `validate_csv()`
+### `csv_validate_columns_number()`
 
 Valide un fichier CSV et affiche les lignes problématiques.
 
 ```python
-def validate_csv(
+def csv_validate_columns_number(
     csv_path: Path,
     delimiter: str = ';',
     encoding: str = 'utf-8',
@@ -101,9 +101,9 @@ def validate_csv(
 
 ```python
 from pathlib import Path
-from cres_validation import validate_csv
+from cres_validation import csv_validate_columns_number
 
-validate_csv(Path("data.csv"), delimiter=";")
+csv_validate_columns_number(Path("data.csv"), delimiter=";")
 ```
 
 ### `correct_csv()`

@@ -92,6 +92,17 @@ Le projet utilise les outils Python standards. Vous pouvez ajouter :
 - Écrire des tests pour les nouvelles fonctionnalités
 - Mettre à jour la documentation si nécessaire
 
+### Utilitaires Git
+
+Le projet inclut un script utilitaire pour réinitialiser la branche locale `main` :
+
+```bash
+# Réinitialiser la branche main locale à origin/main
+./reset-main.sh
+```
+
+**Attention** : Ce script utilise `git reset --hard` et supprimera toutes les modifications locales non commitées sur la branche `main`. Assurez-vous d'être sur la branche `main` et d'avoir sauvegardé vos modifications importantes avant de l'exécuter.
+
 ## Documentation
 
 ### Générer la documentation localement

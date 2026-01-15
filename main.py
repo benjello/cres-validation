@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cres_validation import get_config
-from cres_validation.columns_number_validator import correct_csv, validate_csv
+from cres_validation.columns_number_validator import correct_csv, csv_validate_columns_number
 from cres_validation.convert_to_parquet import convert_csv_to_parquet
 from cres_validation.convert_txt_to_csv import convert_txt_file_to_csv
 
@@ -213,7 +213,7 @@ def main():
                     logger.info(f"✅ Fichier Parquet sauvegardé: {parquet_output_file.name}")
                 else:
                     # Mode validation : valider le fichier
-                    validate_csv(
+                    csv_validate_columns_number(
                         csv_file,
                         delimiter=delimiter,
                         show_progress=args.verbose >= 1,

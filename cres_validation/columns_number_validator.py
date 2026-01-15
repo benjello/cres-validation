@@ -195,7 +195,7 @@ def analyze_csv_columns(
     return expected_columns, problematic_lines_list, column_counter, problematic_lines
 
 
-def validate_csv(
+def csv_validate_columns_number(
     csv_path: Path,
     delimiter: str = ";",
     encoding: str = "utf-8",
@@ -596,7 +596,7 @@ if __name__ == "__main__":
     try:
         config = get_config()
         csv_path = config.get_path("paths", "input_file")
-        validate_csv(csv_path)
+        csv_validate_columns_number(csv_path)
     except Exception as e:
         print(f"Erreur: {e}")
         print("\nUsage: python columns_number_validator.py <chemin_vers_fichier.csv>")

@@ -61,7 +61,7 @@ Test de l'analyse des colonnes du fichier d'entrée :
 - Vérifie qu'il y a des lignes problématiques
 - Vérifie que le compteur contient des données
 
-#### `test_validate_csv`
+#### `test_csv_validate_columns_number`
 
 Test de la validation du fichier CSV :
 

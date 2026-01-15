@@ -49,6 +49,6 @@ uv run pytest --cov=cres_validation.columns_number_validator tests/
 1. `test_input_file_exists` : Vérifie que le fichier d'entrée existe
 2. `test_expected_output_file_exists` : Vérifie que le fichier de sortie attendu existe
 3. `test_analyze_csv_columns` : Test de l'analyse des colonnes
-4. `test_validate_csv` : Test de la validation du fichier CSV
+4. `test_csv_validate_columns_number` : Test de la validation du fichier CSV
 5. `test_correct_csv` : Test de la correction du fichier CSV et comparaison avec le fichier attendu
 6. `test_correct_csv_number_of_lines` : Test que la correction réduit le nombre de lignes
